@@ -1,0 +1,170 @@
+ 
+
+ 用户标签管理-神策分析 帮助中心 | 数据分析使用手册 
+
+ 请输入 
+
+ 神策分析
+ 神策智能运营
+ 神策广告分析
+ 神策数界
+ 神策用户画像
+ 神策A/B测试
+ 开放平台
+
+ 菜单 
+ 首页 神策用户画像 产品使用指南 用户标签管理 
+ 用户标签管理
+
+ 创建用户标签 
+
+ 管理用户标签 
+
+ 使用 SQL 创建用户标签 
+
+ 用户标签任务状态说明 
+
+ 分享文章
+
+ 最近修改: 2024-12-27 
+
+ 神策分析 
+ 新手入门 
+ 神策分析是什么？ 神策分析能做什么 神策分析怎么解决问题 神策分析的数据来源 快速接入 
+ 接入前准备 如何正确地标识用户 采集方案设计 基础数据校验 产品使用指南 
+ 基本概念 
+ 行为分析常用名词 神策分析相关名词 基础指标配置说明 属性筛选条件说明 概览 
+ 公共概览 基础数据概览 渠道对比组件使用说明 分析模块 
+ 用户分析 
+ 用户细查 用户列表 用户行为序列 行为分析 
+ 事件分析 
+ 事件分组 对象数组 交易日 漏斗分析 留存分析 分布分析 LTV 分析 Session 分析 用户路径分析 间隔分析 归因分析 网页热力分析 App 点击分析 经营分析 
+ 自定义查询 
+ 数据表及数据类型 常用函数说明 常见案例 自定义查询（新） 指标分析 其他 
+ 书签 智能预警分析 
+ 企业群通知 指标平台 
+ 指标管理 维度管理 关系管理 表应用管理 变更设置 用户分群 场景商店 渠道追踪 
+ 渠道链接 
+ 推广APP 
+ 0-App通用渠道 1- App 通用渠道（包含 Deeplink 能力） 推广小程序 
+ 推广微信小程序 推广支付宝小程序 推广网页 
+ 0-网页通用渠道追踪 渠道追踪常见问题 渠道工具 
+ 三方数据集成 
+ Adjust 数据集成说明 AppsFlyer 数据集成说明 数据接入 
+ 数据源管理 
+ 配置微信公众号及小程序授权 配置 Hive 数据源 配置 MySQL 数据源 配置 Oracle 数据源 配置 FTP 数据源 数据表管理 入库校验规则配置 数据接入引导 实时数据查询 Debug 调试模式 
+ Debug 调试模式动态配置 元数据管理 
+ 元事件 事件属性 用户属性 维度表 虚拟属性 虚拟事件 Session 管理 可视化全埋点 
+ App 可视化全埋点使用指南 Web 可视化全埋点使用指南 代码埋点与可视化全埋点分别的适用场景 通知助手 辅助功能 
+ 搜索用户 维度字典 查询抽样 正则表达式 大数据查询常用功能 掌上神策分析 A/B 测试 报表 
+ 报表产品更新日志 业务集市数据接入 
+ 添加分析模型 添加自定义查询 添加外部数据表 业务集市数据准备 
+ 查看业务模型 编辑业务模型 业务模型计算列 业务模型水平拼接 业务模型垂直拼接 制作可视化组件 
+ 组件介绍 制作第一个组件 表格组件应用 图表组件应用 字段设置 图表分析 
+ 同环比 辅助线 时间标注 时间对比分析 累计计算 制作报表 
+ 配置可视化组件 全局筛选配置 报表使用 报表管理 权限配置与资源转交 
+ 角色功能配置 业务模型权限配置 报表权限配置 资源转交 移动端 分享与应用 
+ 订阅报表 订阅业务模型 业务集市模型管理 
+ 业务集市列表管理 业务集市管理中心 个人中心 
+ API Key管理 一次性口令 诊断工具（开启前端诊断） 账号脱敏 信蜂系统用户手册 消息通知中心 审批中心 平台管理 
+ 自助更新license 项目管理 项目基本设置 
+ 分析配置项 切换时区分析 切换分析主体 成员与角色 
+ 平台级账号管理 成员管理 角色管理 账号、密码、会话可视化配置 发件箱管理 品牌信息设置 企业微信登录设置 操作日志 在线升级 本地埋点项目 数据质量 
+ 埋点数据查询 
+ 埋点数据校验错误逻辑 新导航 资源管理 技术指南 
+ 基础知识 
+ 数据模型 数据格式 标识用户——简易用户关联（IDM 2.0 & IDM 1.0） 标识用户——全域用户关联（IDM 3.0） 新增用户及首日首次标记 多项目 预置事件与预置属性 
+ 预置属性总表格 App SDK 预置事件和预置属性 Web JS SDK 预置事件和预置属性 微信小程序 SDK 预置事件和预置属性 快应用 SDK 预置事件和预置属性 WeCode 小程序 SDK 预置事件和预置属性 服务端预置事件及预置属性 渠道相关预置属性 游戏 SDK 预置事件和预置属性 客户端 SDK 
+ 合规说明 
+ App Store 隐私指引 神策数据 SDK 隐私声明 Privacy Policy IP 解析说明 Android SDK 
+ 集成文档（Android） 基础 API 介绍（Android） 高级功能（Android） 用户关联（Android） 
+ 全域用户关联（Android） 简易用户关联（Android） 渠道追踪与广告（Android） 曝光采集（Android） 常见问题 FAQ（Android） Android SDK 插件说明 Android 分析 SDK 下载 iOS SDK 
+ 集成文档（iOS） 基础 API 介绍（iOS） 高级功能（iOS） 用户关联（iOS） 
+ 全域用户关联（iOS） 简易用户关联（iOS） 渠道追踪与广告（iOS） 曝光采集（iOS） 常见问题 FAQ（iOS） Web JS SDK 
+ 集成文档（Web） 基础 API 介绍（Web） 全埋点和点击图(Web) 高级功能（Web） 安全合规（Web） 用户关联（Web） 
+ 全域用户关联（Web） 简易用户关联（Web） 插件集成 (Web) 多域名打通（Web） 渠道追踪与广告（Web） 曝光采集（Web） 谷歌 AMP（Web） 深度链接 deeplink（Web） 常见问题 FAQ（Web） 小程序 SDK 
+ 微信小程序 SDK 
+ 集成文档（微信小程序） 基础 API 介绍（微信小程序） 高级功能（微信小程序） 用户关联（微信小程序） 
+ 全域用户关联（微信小程序） 简易用户关联（微信小程序） 微信小程序 SDK 与 H5 打通方案 插件集成（微信小程序） 曝光采集（微信小程序） 快应用 SDK 
+ 用户关联（快应用） 
+ 全域用户关联（IDM 3.0-快应用） 简易用户关联（IDM 2.0-快应用） We 码小程序 SDK 其他小程序 SDK 
+ 基础 API 介绍（其他小程序） 淘宝小程序 SDK 发送 用户关联（其他小程序） 
+ 全域用户关联（其他小程序） 简易用户关联（其他小程序） 集成文档（其他小程序） 高级功能（其他小程序） 跨平台第三方框架 
+ Flutter 
+ 集成文档（Flutter） 
+ 集成文档（Flutter 插件） Flutter 全埋点 基础 API 介绍（Flutter） 用户关联（Flutter） 
+ 全域用户关联（Flutter） 简易用户关联（Flutter） React Native 
+ 集成文档（React Native） 基础 API 介绍（React Native） 用户关联（React Native） 
+ 全域用户关联（React Native） 简易用户关联（React Native） 渠道追踪与广告（React Native） APICloud SDK 
+ 集成文档（APICloud） 基础 API 介绍（APICloud） 用户关联（APICloud） 
+ 全域用户关联（APICloud） 简易用户关联（APICloud） uni-app SDK 
+ 用户关联（uni-app） 
+ 全域用户关联（IDM 3.0-uni-app） 简易用户关联（IDM 2.0-uni-app） 集成文档（uni-app-js） 集成文档（uni-app-native） Weex 
+ 集成文档（Weex） 基础 API 介绍（Weex） 用户关联（Weex） 
+ 全域用户关联（IDM3.0） 简易用户关联（IDM 2.0） 游戏 SDK 
+ Cocos2d-x SDK 
+ 集成文档（Cocos2d-x） 基础 API 介绍（Cocos2d-x） 渠道追踪（Cocos2d-x） CocosCreator SDK 
+ 集成文档（CocosCreator SDK） Egret SDK 
+ 集成文档（Egret SDK） LayaAir SDK 
+ 集成文档（LayaAir） 基础 API 介绍（LayaAir） Native 支持 Unity SDK 
+ 集成文档（Unity） 基础 API 介绍（Unity） Unreal Engine SDK 
+ 集成文档（Unreal Engine） 基础 API 介绍（Unreal Engine） 小游戏 SDK 
+ 集成文档（小游戏） C++ SDK 
+ 集成文档（C++） 基础 API 介绍（C++） 用户关联（C++） 
+ 全域用户关联（IDM 3.0-C++） 简易用户关联（IDM 2.0-C++） macOS & tvOS SDK 
+ 集成文档（macOS & tvOS） 基础 API 介绍（macOS & tvOS） App 打通 H5 开启可视化全埋点 
+ Web 可视化全埋点截图插件 DeepLink 功能集成 广告 SDK 
+ iOS SDK 集成（不含 IDFA - 广告 SDK ） iOS SDK 集成（广告 SDK） SDK 功能介绍 
+ 全域用户关联 
+ 预置用户标识清单 曝光采集 三方数据 
+ 接入指南（Android） 接入指南（iOS） HarmonyOS SDK 
+ 全埋点（HarmonyOS） 基础 API 介绍（HarmonyOS） 用户关联（HarmonyOS） 
+ 全域用户关联（HarmonyOS） 简易用户关联（HarmonyOS） 集成文档（HarmonyOS） 高级功能（HarmonyOS） 渠道追踪与广告（HarmonyOS） 更新日志（HarmonyOS SDK ） 服务端 SDK 
+ Java SDK 
+ 集成文档（Java） 基础 API 介绍（Java） 
+ 全域用户关联 API（Java） 简易用户关联 API（Java） Java SDK Demo C SDK 
+ 集成文档（C） 基础 API 介绍（C） C SDK Demo C# SDK 
+ 集成文档（C#） 基础 API 介绍（C#） 
+ 全域用户关联 API（C#） 简易用户关联 API（C#） C# SDK Demo Golang SDK 
+ 集成文档（Golang） 基础 API 介绍（Golang） 
+ 全域用户关联 API（IDM3.0-Golang） 简易用户关联 API（IDM2.0-Golang） PHP SDK 
+ 集成文档（PHP） 基础 API 介绍（PHP） 
+ 全域用户关联 API（IDM3.0-PHP） 简易用户关联 API（IDM2.0-PHP） Python SDK 
+ 集成文档（Python） 基础 API 介绍（Python） 
+ 全域用户关联 API（Python） 简易用户关联 API（Python） Ruby SDK 
+ 集成文档（Ruby） 基础 API 介绍（Ruby） 
+ 简易用户关联 API（IDM2.0-Ruby） Node SDK 
+ 集成文档（Node） 基础 API 介绍（Node） 
+ 简易用户关联 API（IDM2.0-Node） Lua SDK 
+ 集成文档（Lua） 基础 API 介绍（Lua） Lua SDK Demo 数据导入 
+ BatchImporter FormatImporter HdfsImporter LogAgent 
+ LogAgent 场景使用示例 Logstash + Filebeat 数据导入常见问题 数据校验 
+ 埋点管理 
+ 数据校验逻辑 导入实时查看 
+ 导入实时查看（新） 导入实时查看（老） 调试模式 
+ 调试模式动态配置 数据导出 
+ 订阅 Kafka 实时数据 使用 JDBC 进行数据访问 历史数据导入导出 辅助工具 
+ 多项目管理工具使用说明 元数据创建工具使用说明 sdfadmin 数据清理工具使用说明 高级功能 
+ 虚拟属性和维度表 数据预处理模块 使用 HTTPS 的数据接入 API 
+ 功能 API 
+ 分群 API 概览管理 API 渠道管理API 数据接入 API 查询 API 第三方登录 
+ OAuth2.0 登录 LDAP 登录 数据归档 开放平台 
+ OpenAPI 概述 OpenAPI 认证方式 OpenAPI 手册 行业实践 
+ 功能应用示例 
+ 事件分析功能应用示例 漏斗分析功能应用示例 留存分析功能应用示例 分布分析常见应用场景 间隔分析功能应用示例 用户分群功能应用示例 用户行为序列功能应用示例 自定义查询场景 复杂分析场景 常见问题 
+ 产品问题 数据 & 技术问题 费用 & 服务问题 错误码介绍 错误码原因速查表 产品更新日志 
+ 2.5 三位版本更新日志 支持与服务 
+ 软件更新服务 SRE 运维服务 神策用户画像 
+ 新手入门 
+ 神策用户画像系统是什么？ 产品使用指南 
+ 基本概念 用户标签管理 
+ 创建用户标签 管理用户标签 使用 SQL 创建用户标签 用户标签任务状态说明 用户分群管理 
+ 创建用户分群 管理用户分群 用户分群任务状态说明 用户洞察分析 
+ RFM 分析 用户群画像 分析模型中查看用户群画像 单用户画像 用户数据视图 用户搜索 单用户全景视图 设置 
+ 单用户画像模板管理 用户群画像模板管理 单用户全景视图模板管理 人群筛选特征模板管理 账号角色权限设置 计算口径说明 技术指南 
+ 功能API 
+ 标签 API 
+ 「导入创建」标签 分群API 标签数据导入 标签数据导出 常见问题 
+ 产品问题 技术问题 服务&配置问题 产品更新日志 
+
+ 

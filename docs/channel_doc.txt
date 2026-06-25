@@ -1,0 +1,1480 @@
+ 
+
+ 渠道 
+
+ 请输入 
+
+ 神策分析
+ 神策智能运营
+ 神策广告分析
+ 神策数界
+ 神策用户画像
+ 神策A/B测试
+ 开放平台
+
+ 菜单 
+ 首页 神策分析 技术指南 开放平台 Open API 样例 渠道 
+ 渠道
+
+ 获取渠道链接查询列表
+
+ API 服务地址及请求地址
+
+ /api/v3/analytics/v1 /channel/links/list 
+ POST 
+
+ 请求参数说明
+
+ 参数名
+
+ | 
+
+ 含义
+
+ | 
+
+ 规则说明
+
+ | 
+
+ 数据类型
+
+ | 
+
+ 是否必须
+
+ | 
+
+ 缺省值
+
+ | 
+
+ page_num | 
+ 分页页码 | 
+ 分页页码，0 代表第一页 | 
+ Integer | 
+ 可选 | 
+ 0 | 
+
+ page_size | 
+ 每页条数 | 
+ 每页条数，单页最大 1000 条 | 
+ Integer | 
+ 可选 | 
+ 20 | 
+
+ sort_type | 
+ 排序类型 | 
+
+ 支持按照创建时间、更新时间进行升降排序
+
+ 1 ：按照创建时间升序排序
+
+ -1：按照创建时间降序排序
+
+ 2：按照更新时间升序排序
+
+ -2：按照更新时间降序排序
+
+ | 
+ Integer | 
+ 可选 | 
+
+ 1
+
+ 默认 按照创建时间升序排序
+
+ | 
+
+ campaign_filters | 
+ 活动名称筛选 | 
+ 按照活动名称筛选 | 
+ Array<String> | 
+ 可选 | 
+ 无 | 
+
+ device_type_filters | 
+ 设备类型筛选 | 
+ 按照设备类型筛选，支持的枚举值【通用、iOS、Android】 | 
+ Array<String> | 
+ 可选 | 
+ 无 | 
+
+ channel_type_filters | 
+ 渠道类型筛选 | 
+
+ 按照渠道类型筛选，支持的枚举值【app_normal、app_deeplink、web_normal、mina_normal、alipay_mini_track】
+
+ 枚举值对应关系：
+
+ app_normal：APP 通用渠道
+
+ app_deeplink：APP 通用渠道(包含 Deeplink 能力)
+
+ web_normal：网页通用渠道
+
+ mina_normal：微信小程序通用渠道
+
+ alipay_mini_track：支付宝小程序通用渠道
+
+ | 
+   | 
+   | 
+   | 
+
+ global_filters | 
+ 全局筛选 | 
+ 全局筛选，按照渠道链接名称、渠道推广链接、渠道链接 id 进行筛选 | 
+ Array<String> | 
+ 可选 | 
+ 无 | 
+
+ channel_application_name_filters | 
+ deeplink 应用的应用名称筛选 | 
+ 根据应用名称筛选，可以筛选出对用的 APP 通用渠道（包含 Deeplink 能力）渠道链接 | 
+ Array<String> | 
+ 可选 | 
+ 无 | 
+
+ 完整请求参数示例
+
+ 请求参数
+
+ {
+ "page_num": 0,
+ "page_size": 50,
+ "sort_type": "-1",
+ "campaign_filters": [
+ "test%%+++活动"
+ ],
+ "device_type_filters": [
+ "通用",
+ "iOS",
+ "Android"
+ ],
+ "channel_type_filters": [
+ "app_normal",
+ "app_deeplink",
+ "web_normal",
+ "mina_normal",
+ "alipay_mini_track"
+ ],
+ "global_filters": [
+ "全局筛选"
+ ],
+ "channel_application_name_filters": [
+ "测试应用"
+ ]
+} 
+
+ 接口响应参数说明
+
+ 参数名
+
+ | 
+
+ 含义
+
+ | 
+
+ 规则说明
+
+ | 
+ 数据类型 | 
+ 是否必须 | 
+
+ code 
+ | 
+
+ 当前查询是否成功标识
+
+ | 
+
+ 查询成功：SUCCESS，其他情况为查询失败
+
+ | 
+ String | 
+ 是 | 
+
+ request_id | 
+ 本次查询的trace ID | 
+ 方便后续的问题跟踪 | 
+ String | 
+ 是 | 
+
+ data | 
+ 本次查询的具体数据 | 
+   | 
+ JSON | 
+ 否 | 
+
+ ----> | 
+ total_rows | 
+ 总条数 | 
+ 返回渠道链接数据总条数 | 
+
+ long
+
+ | 
+ 是 | 
+
+ ----> | 
+ total_page | 
+ 总页数 | 
+ 返回渠道链接数据总页数 | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ page_num | 
+ 当前分页页码 | 
+ 当前分页页码，0 代表第一页 | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ page_size | 
+ 每页条数 | 
+ 每页条数 | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ detail_results | 
+ 渠道链接列表明细结果 | 
+ 返回渠道链接明细结果列表 | 
+ Json | 
+ 否 | 
+
+ ----> | 
+ ----> | 
+ id | 
+ 渠道链接主键 id | 
+ 渠道链接主键 id | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ name | 
+ 渠道链接名称 | 
+ 渠道链接名称 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ channel_type | 
+ 渠道类型 | 
+ 渠道类型 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ device_type | 
+ 设备类型 | 
+ 设备类型，枚举值（通用、iOS、Android） | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ short_url | 
+ 短链地址 | 
+ 短链地址 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ app_address | 
+ APP 链接地址 | 
+ APP 链接地址 | 
+ String | 
+ 否 | 
+
+ ----> | 
+ ----> | 
+ parameters | 
+ 自定义渠道信息 | 
+ 自定义渠道信息 | 
+ Map<String,String> | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+
+ project_id 
+ | 
+ 项目 Id | 
+ 项目 Id，对应项目 Id | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+
+ create_time 
+ | 
+ 渠道链接创建时间 | 
+ 渠道链接创建时间 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+
+ update_time 
+ | 
+ 渠道链接更新时间 | 
+ 渠道链接更新时间 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ short_url_id | 
+ 短链 Id | 
+ 短链 Id | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ channel_track_key | 
+ 渠道唯一标识 Key | 
+ 渠道唯一标识 Key | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ is_show_whole_url | 
+ 是否展示 whole_url | 
+ 是否展示 whole_url | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ whole_url | 
+ 完整 url 链接地址 | 
+ 完整 url 链接地址 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ ----> | 
+ web_landing_page | 
+ 网页落地页 | 
+ 网页落地页，如果唤醒 App 失败，需要进入哪个网页，需要以 http:// 或者 https:// 为开头 | 
+ String | 
+ 否 | 
+
+ ----> | 
+ ----> | 
+ application_name | 
+ 渠道应用名称 | 
+ 渠道应用名称 | 
+ String | 
+ 否 | 
+
+ ----> | 
+ ----> | 
+ application_info_id | 
+ 渠道应用信息 id | 
+ 渠道应用信息 id | 
+ String | 
+ 否 | 
+
+ 完整的响应报文示例
+
+ 响应报文
+
+ {
+ "code":"SUCCESS",
+ "request_id":"09511615f0f14802af19fada2c95ba37",
+ "data":{
+ "total_rows":"5",
+ "total_page":5,
+ "page_num":0,
+ "detail_results":[
+ {
+ "id":1,
+ "name":"APP 通用渠道_测试活动_20230203_4996",
+ "channel_type":"app_normal",
+ "device_type":"通用",
+ "short_url":"http://{hostname}:{port}/r/U",
+ "app_address":"http://{hostname}:{post}/sa/channel_sa/link_manage?project=default&utm_source=%E6%B5%8B%E8%AF%95%E6%9D%A5%E6%BA%90&utm_campaign=%E6%B5%8B%E8%AF%95%E7%9A%84%E6%B4%BB%E5%8A%A8%25%25&test=%E8%87%AA%E5%AE%9A%E4%B9%89%E5%B1%9E%E6%80%A7&_channel_track_key=U9itljXH",
+ "parameters":{
+ "utm_campaign":"测试活动"
+ },
+ "project_id":1,
+ "create_time":"2023-02-03 16:19:57",
+ "update_time":"2023-02-03 16:19:57",
+ "short_url_id":0,
+ "channel_track_key":"U9itljXH",
+ "is_show_whole_url":1
+ },
+ {
+ "id":2,
+ "name":"App Deeplink 通用渠道_测试应用_20230112_5511",
+ "channel_type":"app_deeplink",
+ "device_type":"通用",
+ "short_url":"https://{hostname}:{port}/sd/xfA/A/W1uy30",
+ "app_address":"",
+ "parameters":{
+ "utm_campaign":"测试活动"
+ },
+ "project_id":1,
+ "create_time":"2023-01-12 18:11:40",
+ "update_time":"2023-01-12 18:11:40",
+ "short_url_id":0,
+ "channel_track_key":"9jTlm9Gh",
+ "is_show_whole_url":1,
+ "web_landing_page":"http://www.test.com",
+ "application_name":"测试应用"
+ },
+ {
+ "id":3,
+ "name":"网页通用渠道_测试的活动%%_20230203_4983",
+ "channel_type":"web_normal",
+ "device_type":"通用",
+ "short_url":"http://{hostname}:{port}/t/E",
+ "app_address":"",
+ "parameters":{
+ "utm_campaign":"测试活动"
+ },
+ "project_id":1,
+ "create_time":"2023-02-03 17:04:09",
+ "update_time":"2023-02-03 17:04:09",
+ "short_url_id":0,
+ "channel_track_key":"BlCeGScT",
+ "is_show_whole_url":1,
+ "whole_url":"http://www.test.com?utm_campaign=%E6%B5%8B%E8%AF%95%E7%9A%84%E6%B4%BB%E5%8A%A8%25%25&_channel_track_key=BlCeGScT"
+ },
+ {
+ "id":4,
+ "name":"微信小程序通用渠道_测试活动_20230209_2179",
+ "channel_type":"mina_normal",
+ "device_type":"通用",
+ "parameters":{
+ "utm_campaign":"测试活动"
+ },
+ "project_id":1,
+ "create_time":"2023-02-09 15:44:08",
+ "update_time":"2023-02-09 15:44:08",
+ "short_url_id":0,
+ "channel_track_key":"FlnXUZQe",
+ "is_show_whole_url":1,
+ "whole_url":"pages/details/index?id=2323323&sa_utm=j"
+ },
+ {
+ "id":5,
+ "name":"支付宝小程序通用渠道_测试活动_20230203_3007",
+ "channel_type":"alipay_mini_track",
+ "device_type":"通用",
+ "app_address":"",
+ "parameters":{
+ "utm_campaign":"测试活动"
+ },
+ "project_id":1,
+ "create_time":"2023-02-03 17:05:09",
+ "update_time":"2023-02-03 17:05:09",
+ "short_url_id":0,
+ "channel_track_key":"l7dkBwWi",
+ "is_show_whole_url":1,
+ "whole_url":"https://ds.alipay.com/?scheme=alipays%3A%2F%2Fplatformapi%2Fstartapp%3FappId%3D907%26page%3Dpage%2Fcommon%2Fsrch%2Fsech%26qry%3Dsa_utm%253Ds"
+ }
+ ],
+ "page_size":1
+ }
+} 
+
+ 渠道链接 - 新建渠道链接 
+
+ API 服务地址及请求方式
+
+ / api/v3/analytics/v1/channel/links/create 
+ POST 
+
+ 请求参数说明
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必须 | 
+ 缺省值 | 
+
+ channel_urls 
+ | 
+ 批量创建渠道链接列表 | 
+ 同一批次渠道类型要相同，批量创建链接最多创建 800 个 | 
+ Array<Json> | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+
+ channel_type 
+ | 
+ 渠道类型 | 
+ app_normal：APP 通用渠道；app_deeplink：APP 通用渠道(包含 Deeplink 能力)；web_normal：网页通用渠道；mina_normal：微信小程序通用渠道；alipay_mini_track：支付宝小程序通用渠道 | 
+ String | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+
+ device_type 
+ | 
+ 设备类型 | 
+ 枚举值类型，支持【通用、iOS、Android】 | 
+ String | 
+ 否 | 
+ 通用 | 
+
+ ----> | 
+
+ target_url 
+ | 
+ 目标地址 | 
+ 网址必须以 http:// 或 https:// 开头 | 
+ String | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+
+ app_address 
+ | 
+ 推广页面地址 | 
+ 比如 Android 或 iOS 的下载地址、应用宝微下载地址、中间跳转URL，这网址必须以 http:// 或 https:// 开头 | 
+ String | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+
+ parameters 
+ | 
+ 自定义渠道属性 | 
+   | 
+ Map<String,String> | 
+ 否 | 
+ 无 | 
+
+ ----> | 
+
+ app_inner_info 
+ | 
+ 应用内参数 | 
+ APP 通用渠道 可以使用这个参数跳转至指定页面，或者展示相应的弹框等，需要和贵方客户端研发约定好 | 
+ String | 
+ 否 | 
+ 无 | 
+
+ ----> | 
+
+ web_landing_page 
+ | 
+ 网页落地页 | 
+ 网页落地页，需要以 http:// 或 https:// 开头 | 
+ String | 
+ 否 | 
+ 无 | 
+
+ ----> | 
+
+ application_name 
+ | 
+ Deeplink 应用创建的应用名称 | 
+ APP 通用渠道(包含 Deeplink 能力)，需要先在页面上创建 Deeplink 应用 | 
+ String | 
+ APP 通用渠道(包含 Deeplink 能力)必传 | 
+ 无 | 
+
+ ----> | 
+
+ custom_properties 
+ | 
+ 自定义参数 | 
+ 开启强校验后，自定义属性字段，需要创建 | 
+ Array<Json> | 
+ 否，强校验时必填 | 
+ 无 | 
+
+ ----> | 
+ ----> | 
+ name | 
+ 自定义属性英文名 | 
+ 自定义属性英文名，强校验时必传 | 
+ String | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+ ----> | 
+ cname | 
+ 自定义属性中文名 | 
+ 自定义属性中文名，强校验时必传 | 
+ Sting | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+
+ app_id 
+ | 
+ 小程序 appId | 
+ 微信小程序永久有效链接(LINK_LONG)、常规码(GENERAL)、超长码(EFFICIENCY)，支付宝小程序必填字段 | 
+ String | 
+ 否 | 
+ 无 | 
+
+ ----> | 
+
+ app_secret 
+ | 
+ 小程序 secret | 
+ 微信小程序永久有效链接(LINK_LONG)、常规码(GENERAL)、超长码(EFFICIENCY)，必填字段 | 
+ String | 
+ 否 | 
+ 无 | 
+
+ ----> | 
+
+ mina_type 
+ | 
+ 投放物料类型 | 
+ 微信小程序通用渠道【页面路径(NONE)、永久有效链接(LINK_LONG)、常规码(GENERAL)、超长码(EFFICIENCY)】；支付宝小程序通用渠道【全局参数(ALIPAY_SCHEME)、页面参数(ALIPAY_PAGE)】 | 
+ String | 
+ 否 | 
+ 无 | 
+
+ 完整请求参数示例：
+
+ 请求参数
+
+ {
+ "channel_urls":[
+ {
+ "channel_type":"app_normal",
+ "app_address":"http://{hostname}:{post}/sa/channel_sa/link_manage?project=default",
+ "parameters":{
+ "utm_source":"广告来源",
+ "utm_medium":"广告媒介",
+ "utm_term":"关键词",
+ "utm_content":"广告内容",
+ "utm_campaign":"活动"
+ },
+ "custom_properties":[
+
+ ],
+ "device_type":"通用"
+ },
+ {
+ "channel_type":"app_deeplink",
+ "parameters":{
+ "utm_source":"广告来源",
+ "utm_medium":"广告媒介",
+ "utm_term":"关键词",
+ "utm_content":"广告内容",
+ "utm_campaign":"活动"
+ },
+ "custom_properties":[
+
+ ],
+ "application_name":"测试应用",
+ "web_landing_page":"http://www.test.com",
+ "app_inner_info":"t=test",
+ "device_type":"通用"
+ },
+ {
+ "channel_type":"web_normal",
+ "target_url":"http://www.test.com",
+ "parameters":{
+ "utm_source":"广告来源",
+ "utm_medium":"广告媒介",
+ "utm_term":"关键词",
+ "utm_content":"广告内容",
+ "utm_campaign":"活动"
+ },
+ "custom_properties":[
+
+ ],
+ "device_type":"通用"
+ },
+ {
+ "channel_type":"mina_normal",
+ "target_url":"pages/index?id=asdfas",
+ "mina_type":"EFFICIENCY",
+ "app_id":"wx123423423",
+ "app_secret":"123asdfasdfq12342314",
+ "parameters":{
+ "utm_source":"广告来源",
+ "utm_medium":"广告媒介",
+ "utm_term":"关键词",
+ "utm_content":"广告内容",
+ "utm_campaign":"活动"
+ },
+ "custom_properties":[
+
+ ],
+ "device_type":"通用"
+ },
+ {
+ "channel_type":"alipay_mini_track",
+ "mina_type":"ALIPAY_PAGE",
+ "target_url":"page/common/search/search",
+ "app_id":"23234211234",
+ "parameters":{
+ "utm_source":"广告来源",
+ "utm_medium":"广告媒介",
+ "utm_term":"关键词",
+ "utm_content":"广告内容",
+ "utm_campaign":"活动"
+ },
+ "custom_properties":[
+
+ ],
+ "device_type":"通用"
+ }
+ ]
+} 
+
+ 接口响应参数说明： 
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必填 | 
+
+ status 
+ | 
+ 创建状态 | 
+ 渠道链接创建状态 | 
+ String | 
+ 是 | 
+
+ created 
+ | 
+ 总条数 | 
+  包含：成功 + 失败 + 重复 | 
+ Integer | 
+ 是 | 
+
+ duplicated 
+ | 
+
+ 重复条数 
+ | 
+ 重复条数 | 
+ Integer | 
+ 是 | 
+
+ failed 
+ | 
+ 失败条数 | 
+ 创建失败条数 | 
+ Integer | 
+ 是 | 
+
+ image_base64 
+ | 
+ 图片 base64 编码 | 
+ 批量创建微信小程序通用渠道，返回第一个图片 base64 编码 | 
+ String | 
+ 否 | 
+
+ error 
+ | 
+ 报错信息 | 
+ 单条创建报错信息 | 
+ Json | 
+ 否 | 
+
+ ----> | 
+
+ error_code 
+ | 
+ 报错码 | 
+ 微信小程序渠道创建，微信返回错误码 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ error_msg 
+ | 
+ 报错描述 | 
+ 微信小程序渠道创建，微信返回错误描述 | 
+ String | 
+ 否 | 
+
+ channel_urls 
+ | 
+ 渠道链接创建结果列表 | 
+   | 
+ Arrays<Json> | 
+ 否 | 
+
+ ----> | 
+
+ id 
+ | 
+ 渠道链接主键 Id | 
+ 数据自增主键 id | 
+ Integer | 
+ 否 | 
+
+ ----> | 
+
+ name 
+ | 
+ 渠道链接名称 | 
+ 渠道链接生成名称 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ app_address 
+ | 
+ 推广页面地址 | 
+ 推广页面地址 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ short_url 
+ | 
+ 短链地址 | 
+ 短链地址 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ whole_url 
+ | 
+ 完整链接地址 | 
+ 完整链接地址 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ is_duplicate 
+ | 
+ 是否重复创建 | 
+ 根据 target_url 、渠道参数信息、所属项目名称，判断是否是相同的短链 | 
+
+ Boolean
+
+ | 
+ 否 | 
+
+ ----> | 
+
+ error_msg 
+ | 
+ 错误信息 | 
+ 创建失败的报错信息 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ resource_base64 
+ | 
+ base 64 图片编码 | 
+ 微信小程序常规码和超长码生成图片的 base 64 编码 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ application_name 
+ | 
+ 应用名称 | 
+ Deeplink 应用创建的应用 | 
+ String | 
+ 否 | 
+
+ ----> | 
+
+ web_landing_page 
+ | 
+ 网页落地页 | 
+ 需要以 http:// 或 https:// 开头 | 
+ String | 
+ 否 | 
+
+ 完整的响应报文示例：
+
+ 响应报文
+
+ {
+ "duplicated":0,
+ "image_base64":"",
+ "created":1,
+ "channel_urls":[
+ {
+ "id":872,
+ "name":"APP 通用渠道_活动_20230213_6758",
+ "app_address":"推广页面地址",
+ "short_url":"短链地址",
+ "whole_url":"",
+ "is_duplicate":false,
+ "error_msg":"",
+ "resource_base64":"",
+ "application_name":"",
+ "web_landing_page":""
+ }
+ ],
+ "failed":0,
+ "status":"success"
+} 
+
+ 渠道链接 - 更新渠道链接
+
+ API 服务地址及请求方式
+
+ / api/v3/analytics/v1/channel/links/update 
+ POST 
+
+ 请求参数说明：
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必须 | 
+ 缺省值 | 
+
+ channel_urls | 
+ 批量修改链接列表内容 | 
+ 批量修改渠道链接列表，批量创建链接最多创建 800 个 | 
+ Array<Json> | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+ id | 
+ 修改渠道的主键 Id | 
+ 可以通过获取渠道链接列表，获取对应渠道的主键 Id | 
+ Integer | 
+ 是 | 
+ 无 | 
+
+ ----> | 
+ name | 
+ 修改渠道名称 | 
+ 修改后的渠道名称 | 
+ Integer | 
+ 是 | 
+ 无 | 
+
+ 完整请求参数示例：
+
+ 请求参数
+
+ {
+ "channel_urls":[
+ {
+ "name":"支付宝小程序通用渠道_测试的活批量",
+ "id":26
+ }
+ ]
+} 
+
+ 接口响应参数说明： 
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必填 | 
+
+ update_data_results 
+ | 
+ 修改渠道链接信息返回结果 | 
+ 修改渠道链接信息返回结果 | 
+ Array<Json> | 
+ 是 | 
+
+ ----> | 
+ id | 
+ 主键 Id | 
+ 修改渠道信息主键 Id | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+ name | 
+ 修改后渠道名称 | 
+ 修改后渠道名称 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ before_name | 
+ 修改前渠道名称 | 
+ 修改前渠道名称 | 
+ String | 
+ 是 | 
+
+ ----> | 
+ fail_info | 
+ 修改渠道报错信息 | 
+ 修改渠道信息的报错信息 | 
+ String | 
+ 是 | 
+
+ 完整的响应报文示例；
+
+ 响应报文
+
+ {
+ "code":"SUCCESS",
+ "request_id":"762953fb704740e7a431883cde8b7b03",
+ "data":{
+ "update_data_results":[
+ {
+ "id":1,
+ "name":"支付宝小程序通用渠道_测试1",
+ "before_name":"支付宝小程序通用渠道_测试2",
+ "fail_info":""
+ }
+ ]
+ }
+} 
+
+ 道链接 - 删除渠道链接 
+
+ API 服务地址及请求方式
+
+ / api/v3/analytics/v1/channel/links/delete 
+ POST 
+
+ 请求参数说明
+
+ 参数名
+
+ | 
+
+ 含义
+
+ | 
+
+ 规则说明
+
+ | 
+
+ 数据类型
+
+ | 
+
+ 是否必须
+
+ | 
+
+ 缺省值
+
+ | 
+
+ channel_link_ids 
+ | 
+ 渠道链接 Id 列表 | 
+ 删除的渠道链接 Id 列表 | 
+ Arrays<Integer> | 
+ 是 | 
+ 无 | 
+
+ 完整请求参数示例：
+
+ 请求参数
+
+ {
+ "channel_link_ids":[
+ 1,
+ 2,
+ 3
+ ]
+} 
+
+ 接口响应参数说明： 
+
+ 参数名
+
+ | 
+
+ 含义
+
+ | 
+
+ 规则说明
+
+ | 
+
+ 数据类型
+
+ | 
+
+ 是否必填
+
+ | 
+
+ success_channel_link_ids 
+ | 
+ 删除成功的渠道链接 Id 列表 | 
+ 返回删除成功的渠道链接 Id 列表 | 
+ Arrays<Integer> | 
+ 否 | 
+
+ 完整的响应报文示例：
+
+ 响应报文
+
+ {
+ "code":"SUCCESS",
+ "request_id":"8da3351a85664dadb686bbaad8b8b2f9",
+ "data":{
+ "success_channel_link_ids":[
+ 1,
+ 3
+ ]
+ }
+} 
+
+ 活动管理 - 获取活动列表 
+
+ API 服务地址及请求方式
+
+ / api/v3/analytics/v1/channel/campaigns/list 
+ POST 
+
+ 请求参数说明：
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必须 | 
+ 缺省值 | 
+
+ page_num 
+ | 
+ 分页页码 | 
+ 分页页码，0 代表第一页 | 
+ Integer | 
+ 否 | 
+ 0 | 
+
+ page_size 
+ | 
+ 每页条数 | 
+ 每页条数，单页最大 1000条 | 
+ Integer | 
+ 否 | 
+ 20 | 
+
+ sort_info 
+ | 
+ 排序信息 | 
+ 排序信息 | 
+ Json | 
+ 否 | 
+   | 
+
+ ----> | 
+
+ sort_field 
+ | 
+ 排序字段 | 
+ 排序字段，支持链接数量(branch_num)、最后创建时间(latest_use_time)字段排序 | 
+ String | 
+ 否 | 
+ 默认最后创建时间(latest_use_time)字段排序，降序排序 | 
+
+ ----> | 
+
+ sort_strategy 
+ | 
+ 排序策略 | 
+ 排序策略，DESC 降序、ASC | 
+ String | 
+ 否 | 
+ 无 | 
+
+ 完整请求参数示例：
+
+ 请求参数
+
+ {
+ "page_num":0,
+ "page_size":20,
+ "sort_info":{
+ "sort_field":"latest_use_time",
+ "sort_strategy":"DESC"
+ }
+} 
+
+ 接口响应参数说明： 
+
+ 参数名 | 
+ 含义 | 
+ 规则说明 | 
+ 数据类型 | 
+ 是否必填 | 
+
+ total_rows 
+ | 
+ 总条数 | 
+ 返回活动总条数 | 
+ Long | 
+ 是 | 
+
+ total_page 
+ | 
+ 总页数 | 
+ 返回活动总分页数 | 
+ Integer | 
+ 是 | 
+
+ page_num 
+ | 
+ 分页页码 | 
+ 分页页码，0 代表第一页 | 
+ Integer | 
+ 是 | 
+
+ page_size | 
+ 每页条数 | 
+ 每页条数，单页最大 1000条 | 
+ Integer | 
+ 是 | 
+
+ campaign_details 
+ | 
+ 活动明细列表 | 
+ 返回活动明细列表 | 
+ Array<Json> | 
+ 否 | 
+
+ ----> | 
+
+ campaign_name 
+ | 
+ 活动名称 | 
+ 活动名称 | 
+ String | 
+ 是 | 
+
+ ----> | 
+
+ branch_num 
+ | 
+ 链接数量 | 
+ 统计活动下创建的渠道链接数 | 
+ Integer | 
+ 是 | 
+
+ ----> | 
+
+ latest_use_time 
+ | 
+ 最后创建时间 | 
+ 活动聚合，最后一个渠道的创建时间 | 
+ String | 
+ 是 | 
+
+ 完整的响应报文示例：
+
+ 响应报文
+
+ {
+ "code":"SUCCESS",
+ "request_id":"270fcef9da8f4e0ea9cc87fdf3ac9849",
+ "data":{
+ "campaign_details":[
+ {
+ "campaign_name":"测试的活动",
+ "branch_num":1,
+ "latest_use_time":"2023-02-09 19:19:50"
+ }
+ ],
+ "total_rows":"6",
+ "total_page":1,
+ "page_num":0,
+ "page_size":10
+ }
+} 
+
+ 分享文章
+
+ 上一个
+ 聚合时间粒度说明
+
+ 下一个
+ OpenAPI 手册
+
+ 最近修改: 2025-07-09 
+
+ 神策分析 
+ 新手入门 
+ 神策分析是什么？ 神策分析能做什么 神策分析如何解决问题 神策分析的数据来源 快速接入 
+ 接入前准备 如何正确地标识用户 采集方案设计 基础数据校验 产品使用指南 
+ 基本概念 
+ 行为分析常用名词 神策分析相关名词 基础指标配置说明 属性筛选条件说明 概览 
+ 公共概览 渠道对比组件使用说明 广告预置概览 分析模块 
+ 用户分析 
+ 属性分析 用户群画像分析 RFM 分析 用户细查 用户列表 用户行为序列 用户价值全周期分析 行为分析 
+ 事件分析 
+ 事件分组 对象数组 交易日 筛选首次/末次行为 漏斗分析 留存分析 分布分析 LTV 分析 Session 分析 用户路径分析 间隔分析 归因分析 网页热力分析 App 点击分析 经营分析 
+ 自定义 SQL 
+ 数据表及数据类型 常用函数说明 常见案例 动态参数 指标分析 多维分析 其他 
+ 书签 智能预警分析 
+ 企业群通知 指标平台 
+ 指标管理 维度管理 关系管理 表应用管理 变更设置 渠道追踪 
+ 渠道链接 
+ 推广APP 
+ App通用渠道 App 通用渠道（包含 Deeplink 能力） 推广小程序 
+ 推广微信小程序 推广支付宝小程序 推广网页 
+ 网页通用渠道追踪 渠道追踪常见问题 渠道工具 
+ 三方数据集成 
+ Adjust 数据集成说明 AppsFlyer 数据集成说明 
+ AppsFlyer Push API AppsFlyer Pull API Google Ads 广告集成方案 Meta Ads 广告集成方案 分群 
+ 人群包推送到 Google Ads 人群包推送到 Meta Ads 标签 数据接入 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步（原任务管理） 
+ 批任务创建和管理 流任务创建和管理 Schema 配置 元数据管理 
+ 用户表 
+ 用户表普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 用户关联校验 数据校验 数据权限 用户信息查询 辅助功能 
+ 查询抽样 正则表达式 大数据查询常用功能 掌上神策 报表 
+ 报表概述 报表产品更新日志 业务集市数据接入 
+ 添加分析模型 添加外部数据表 添加自定义查询 业务集市数据准备 
+ 查看业务模型 编辑业务模型 业务模型计算列 业务模型水平拼接 业务模型垂直拼接 业务模型聚合拼接 业务集市模型管理 
+ 业务集市列表管理 业务集市管理中心 制作可视化组件 
+ 组件介绍 制作第一个组件 表格组件应用 图表组件应用 字段设置 图表分析 
+ 同环比 辅助线 时间标注 时间对比分析 累计计算 制作报表 
+ 配置可视化组件 全局筛选配置 报表使用 报表跳转 报表使用动态参数 报表管理 权限配置与资源转交 
+ 角色功能配置 业务模型权限配置 报表权限配置 资源转交 移动端 分享与应用 
+ 订阅报表 订阅业务模型 个人中心 
+ API Key管理 一次性口令 信蜂系统用户手册 诊断工具（开启前端诊断） 账号脱敏 消息通知 审批中心 
+ 对接外部审批流 资源管理 资产治理（新） 平台管理 
+ License自助更新 项目管理 
+ 多项目 项目基本设置 
+ 信息目录管理 分析配置项 切换时区分析 切换分析主体 日期标注 成员与角色 
+ 平台账号管理 成员管理 角色管理 安全设置 
+ MFA 认证 发件箱设置 品牌信息设置 第三方登录设置 配置项设置 触达通道管理 报警管理 操作日志 在线升级 本地埋点项目 资产箱 技术指南 
+ 基础知识 
+ 数据模型 数据格式 标识用户——简易用户关联（IDM 2.0 & IDM 1.0） 标识用户——全域用户关联 新增用户及首日首次标记 预置事件与预置属性 
+ 预置属性总表格 App SDK 预置事件和预置属性 Web JS SDK 预置事件和预置属性 微信小程序 SDK 预置事件和预置属性 快应用 SDK 预置事件和预置属性 WeCode 小程序 SDK 预置事件和预置属性 服务端预置事件及预置属性 渠道相关预置属性 游戏 SDK 预置事件和预置属性 其他小程序预置事件和属性 客户端 SDK 
+ 合规说明 
+ App Store 隐私指引 WWDC23 隐私更新 神策数据 SDK 隐私声明 Privacy Policy IP 解析说明 Android SDK 
+ 集成文档（Android） 基础 API 介绍（Android） 高级功能（Android） 用户关联（Android） 
+ 全域用户关联（Android） 简易用户关联（Android） 渠道追踪与广告（Android） 曝光采集（Android） 常见问题 FAQ（Android） Android SDK 插件说明 Android 分析 SDK 下载 iOS SDK 
+ 集成文档（iOS） 基础 API 介绍（iOS） 高级功能（iOS） 用户关联（iOS） 
+ 全域用户关联（iOS） 简易用户关联（iOS） 渠道追踪与广告（iOS） 曝光采集（iOS） 常见问题 FAQ（iOS） Web JS SDK 
+ 集成文档（Web） 基础 API 介绍（Web） 全埋点和点击图(Web) 高级功能（Web） 安全合规（Web） 用户关联（Web） 
+ 全域用户关联（Web） 简易用户关联（Web） 插件集成 (Web) 多域名打通（Web） 渠道追踪与广告（Web） 曝光采集（Web） 谷歌 AMP（Web） 深度链接 Deeplink（Web） 常见问题 FAQ（Web） 小程序 SDK 
+ 微信小程序 SDK 
+ 集成文档（微信小程序） 基础 API 介绍（微信小程序） 高级功能（微信小程序） 用户关联（微信小程序） 
+ 全域用户关联（微信小程序） 简易用户关联（微信小程序） 微信小程序 SDK 与 H5 打通方案 插件集成（微信小程序） 曝光采集（微信小程序） 快应用 SDK 
+ 用户关联（快应用） 
+ 全域用户关联（IDM 3.0-快应用） 简易用户关联（IDM 2.0-快应用） We 码小程序 SDK 其他小程序 SDK 
+ 基础 API 介绍（其他小程序） 淘宝小程序 SDK 发送 用户关联（其他小程序） 
+ 全域用户关联（其他小程序） 简易用户关联（其他小程序） 集成文档（其他小程序） 高级功能（其他小程序） 跨平台第三方框架 
+ Flutter 
+ 集成文档（Flutter） 
+ 集成文档（Flutter 插件） Flutter 全埋点 基础 API 介绍（Flutter） 用户关联（Flutter） 
+ 全域用户关联（Flutter） 简易用户关联（Flutter） React Native 
+ 集成文档（React Native） 基础 API 介绍（React Native） 用户关联（React Native） 
+ 全域用户关联（React Native） 简易用户关联（React Native） 渠道追踪与广告（React Native） APICloud SDK 
+ 集成文档（APICloud） 基础 API 介绍（APICloud） 用户关联（APICloud） 
+ 全域用户关联（APICloud） 简易用户关联（APICloud） uni-app SDK 
+ 用户关联（uni-app） 
+ 全域用户关联（uni-app） 简易用户关联（uni-app） 集成文档（uni-app-js） 集成文档（uni-app-native） Weex 
+ 集成文档（Weex） 基础 API 介绍（Weex） 用户关联（Weex） 
+ 全域用户关联（IDM3.0） 简易用户关联（IDM 2.0） 游戏 SDK 
+ Cocos2d-x SDK 
+ 集成文档（Cocos2d-x） 基础 API 介绍（Cocos2d-x） 渠道追踪（Cocos2d-x） CocosCreator SDK 
+ 集成文档（CocosCreator SDK） Egret SDK 
+ 集成文档（Egret SDK） LayaAir SDK 
+ 集成文档（LayaAir） 基础 API 介绍（LayaAir） Native 支持 Unity SDK 
+ 集成文档（Unity） 基础 API 介绍（Unity） Unreal Engine SDK 
+ 集成文档（Unreal Engine） 基础 API 介绍（Unreal Engine） 小游戏 SDK 
+ 集成文档（小游戏） C++ SDK 
+ 集成文档（C++） 基础 API 介绍（C++） 用户关联（C++） 
+ 全域用户关联（IDM 3.0-C++） 简易用户关联（IDM 2.0-C++） macOS & tvOS & watchOS SDK 
+ 集成文档（macOS & tvOS & watchOS） 基础 API 介绍（macOS & tvOS & watchOS） App 打通 H5 开启可视化全埋点 
+ Web 可视化全埋点截图插件 DeepLink 功能集成 广告 SDK 
+ iOS SDK 集成（不含 IDFA - 广告 SDK ） iOS SDK 集成（广告 SDK） SDK 功能介绍 
+ 全域用户关联 
+ 预置用户标识清单 曝光采集 三方数据 
+ 接入指南（Android） 接入指南（iOS） HarmonyOS SDK 
+ 全埋点（HarmonyOS） 基础 API 介绍（HarmonyOS） 用户关联（HarmonyOS） 
+ 全域用户关联（HarmonyOS） 简易用户关联（HarmonyOS） 集成文档（HarmonyOS） 高级功能（HarmonyOS） 渠道追踪与广告（HarmonyOS） 曝光采集（HarmonyOS） 更新日志（HarmonyOS SDK ） 服务端 SDK 
+ Java SDK 
+ 集成文档（Java） 基础 API 介绍（Java） 
+ 全域用户关联 API（Java） 简易用户关联 API（Java） Java SDK Demo C SDK 
+ 集成文档（C） 基础 API 介绍（C） C SDK Demo C# SDK 
+ 集成文档（C#） 基础 API 介绍（C#） 
+ 全域用户关联 API（C#） 简易用户关联 API（C#） C# SDK Demo Golang SDK 
+ 集成文档（Golang） 基础 API 介绍（Golang） 
+ 全域用户关联 API（IDM3.0-Golang） 简易用户关联 API（IDM2.0-Golang） PHP SDK 
+ 集成文档（PHP） 基础 API 介绍（PHP） 
+ 全域用户关联 API（IDM3.0-PHP） 简易用户关联 API（IDM2.0-PHP） Python SDK 
+ 集成文档（Python） 基础 API 介绍（Python） 
+ 全域用户关联 API（Python） 简易用户关联 API（Python） Ruby SDK 
+ 集成文档（Ruby） 基础 API 介绍（Ruby） 
+ 简易用户关联 API（IDM2.0-Ruby） Node SDK 
+ 集成文档（Node） 基础 API 介绍（Node） 
+ 简易用户关联 API（IDM2.0-Node） Lua SDK 
+ 集成文档（Lua） 基础 API 介绍（Lua） Lua SDK Demo 数据导入 
+ FormatImporter Integrator Importer LogAgent 
+ LogAgent 场景使用示例 Logstash + Filebeat 数据导入常见问题 数据导出 
+ 使用 JDBC 进行数据访问 订阅实时数据到 Kafka 高级功能 
+ 数据预处理模块 使用 HTTPS 的数据接入 第三方登录 
+ OAuth2.0 登录 LDAP 登录 数据归档 开放平台 
+ OpenAPI 概述 Open API 样例 
+ 认证 导数 
+ 数据导出 
+ 通过OpenApi 导出实体列表 数据导入 
+ 标签分群导入工具使用文档 查询 
+ 事件分析指标类型 归因分析分析模型 筛选函数的类型 聚合时间粒度说明 渠道 OpenAPI 手册 数据校验 
+ 数据校验逻辑 Debug 调试模式 常见问题 
+ 产品问题 数据 & 技术问题 费用 & 服务问题 错误码介绍 错误码原因速查表 行业实践 
+ 功能应用示例 
+ 事件分析功能应用示例 漏斗分析功能应用示例 留存分析功能应用示例 分布分析常见应用场景 间隔分析功能应用示例 用户分群功能应用示例 用户行为序列功能应用示例 自定义查询场景 复杂分析场景 产品更新日志 
+ 3.0.1 三位版本更新日志 3.0.2 三位版本更新日志 3.0.3 三位版本更新日志 3.0.4 三位版本更新日志 支持与服务 
+ 软件更新服务 SRE 运维服务 神策数界 
+ 产品使用指南 
+ 基本概念 分群 标签 
+ 使用 SQL 创建标签 实时标签 标签分群计算调度 用户信息查询 数据权限 数据管理 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 事件数据删除 事件采样率设置 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步(原任务管理） 
+ Schema 配置 元数据管理 
+ 用户表 
+ 普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 数据校验 用户关联校验 常见问题 
+ 产品问题 
+
+ 

@@ -1,0 +1,6565 @@
+ 
+
+ 查询 
+
+ 请输入 
+
+ 神策分析
+ 神策智能运营
+ 神策广告分析
+ 神策数界
+ 神策用户画像
+ 神策A/B测试
+ 开放平台
+
+ 菜单 
+ 首页 神策分析 技术指南 开放平台 Open API 样例 查询 
+ 查询
+
+ 查询 API 主要用于获取各种数据分析报告。
+
+ 接口
+
+ 事件分析报告接口 POST /api/v3/analytics/v1/model/segmentation/report 
+ 漏斗分析报告接口 POST /api/v3/analytics/v1/model/funnel/report 
+ 留存分析报告接口 POST /api/v3/analytics/v1/model/retention/report 
+ 分布分析报告接口 POST /api/v3/analytics/v1/model/addiction/report 
+ 间隔分析报告接口 POST /api/v3/analytics/v1/model/interval/report 
+ 归因分析报告接口 POST /api/v3/analytics/v1/model/attribution/report 
+ LTV_分析报告接口 POST /api/v3/analytics/v1/model/ltv/report 
+ 属性分析报告接口 POST /api/v3/analytics/v1/model/user-analytics/report 
+ 事件分析用户明细接口 POST /api/v3/analytics/v1/model/segmentation/users 
+ 漏斗分析用户明细接口 POST /api/v3/analytics/v1/model/funnel/users 
+ 留存分析用户明细接口 POST /api/v3/analytics/v1/model/retention/users 
+ 分布分析用户明细接口 POST /api/v3/analytics/v1/model/addiction/users 
+ LTV_分析用户明细接口 POST /api/v3/analytics/v1/model/ltv/users 
+ 用户列表明细接口 POST /api/v3/analytics/v1/model/user/list 
+ 用户行为列表查询接口 POST /api/v3/analytics/v1/model/user/behavior 
+ 自定义 SQL 查询接口 POST /api/v3/analytics/v1/model/sql/query 
+
+ 调用方式
+
+ 使用 查询 OpenAPI 您需要：
+
+ 请参考 OpenAPI 认证方式 获取 API 密钥并构建请求头（api-key、sensorsdata-project 等）。 
+ 请确保您的账户拥有对应分析模型的查询权限。 
+
+ 性能注意事项 
+
+ 响应时间影响因素 
+
+ 1. 查询场景复杂度
+
+ 数据总量大小 
+ 查询时间范围跨度 
+ 分析模型/SQL 复杂度 
+ 聚合计算维度数量 
+
+ 2. 系统配置参数
+
+ 服务器硬件配置（CPU/内存/存储） 
+ 网络带宽质量 
+ 集群负载状态 
+
+ 系统限流规则 
+
+ 调用频率： ≤ 3 次/秒 
+ 并发控制：≤ 10 
+
+ 对于大数据量或明细的导出建议  使用 JDBC 进行数据访问 ，此方式相比 HTTP 查询 API 的性能更好。
+
+ 用户行为报告 
+
+ 事件分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/segmentation/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ measures 
+ 要查询的指标集合 
+ 用户在神策分析-事件分析页面上看到的所有指标的集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分析的事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ name 
+ 指标名称 
+ 自定义的指标名称 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选条件 
+ 针对当前事件的筛选， 详细定义见下文 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对全部指标生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 可选 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ approx 
+ 开启近似计算 
+ 当查指标的聚合方式为去重数等时，可选择此项来提升查询效率 
+ Boolean 
+ 可选 
+ false 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ rollup 
+ 是否查询汇总数据 
+ 查询的数据返回汇总还是明细数据，true 只查汇总数据，false 只查明细数据 
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "measures":[
+ {
+ "event_name":"$MPShow",
+ "aggregator":"general",
+ "name":"小程序显示的总次数",
+ "filter":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$lib",
+ "function":"equal",
+ "params":[
+ "Android"
+ ]
+ }
+ ]
+ }
+ }
+ ],
+ "from_date":"2022-10-08",
+ "to_date":"2022-10-08",
+ "unit":"DAY",
+ "by_fields":[
+ "event.$Anything.$event_duration"
+ ],
+ "filter":{
+ "conditions":[
+ {
+ "field":"user.user_group_fq1",
+ "function":"isFalse",
+ "params":[
+
+ ]
+ },
+ {
+ "field":"event.$Anything.$event_duration",
+ "function":"between",
+ "params":[
+ "30",
+ "60"
+ ]
+ }
+ ],
+ "relation":"or"
+ },
+ "bucket_params":{
+ "event.$Anything.$event_duration":[
+ "40",
+ "50"
+ ]
+ },
+ "rollup":false,
+ "use_cache":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ date 
+ 日期 
+ 查询报文的数据日期，如：2022-07-11 00:00:00 
+ String 
+ 是 
+
+ ----> 
+ {measures[i].name} 
+ 指标数据 
+ 查询指标的具体数据 如：小程序显示的总次数 
+ String 
+ 是 
+
+ ----> 
+ {by_fields[i]} 
+ 查看维度 
+ 具体的查看维度， 如 车载系统（user.vehicle_system） 
+ String 
+ 否 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"92c88c91fa81459a9c571ccd632e3560",
+ "data":{
+ "metadata_columns":{
+ "date":"DATE",
+ "小程序显示的总次数":"DOUBLE",
+ "自定义指标1":"DOUBLE",
+ "user.vehicle_system":"STRING"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-07-11 00:00:00",
+ 144,
+ "37",
+ "1"
+ ],
+ [
+ "2022-07-11 00:00:00",
+ 126,
+ "8",
+ "7"
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/segmentation/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"measures":[{"event_name":"$MPShow","aggregator":"general","name":"MPShow_click_times"}],"from_date":"2022-07-11","to_date":"2022-07-11","rollup":true,"unit":"DAY","by_fields":[],"bucket_params":{},"use_cache":true}' \
+ --compressed \
+ --insecure 
+
+ 漏斗分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/funnel/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ funnel 
+ 要查询的漏斗定义 
+ 用户在神策分析-漏斗分析页面上看到的漏斗定义信息 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ max_convert_time 
+ 窗口期 
+ 用户完成漏斗所有步骤的时间限制 
+ Integer 
+ 必填 
+ 无 
+
+ ----> 
+ steps 
+ 漏斗的步骤 
+ 漏斗的步骤集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名 
+ 组成漏斗步骤的事件名称 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见下文 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前漏斗整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ by_field_steps 
+ 查看维度映射关系 
+ 且和 ”by_fields” 请求参数保持一致 
+ Array 
+ 可选 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ rollup 
+ 是否查询汇总数据 
+ 查询的数据返回汇总还是明细数据，true 只查汇总数据，false 只查明细数据 
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "funnel":{
+ "steps":[
+ {
+ "event_name":"$AppStart"
+ },
+ {
+ "event_name":"$AppViewScreen"
+ },
+ {
+ "event_name":"$AppClick"
+ }
+ ],
+ "max_convert_time":10080
+ },
+ "by_fields":[
+ "event.$AppStart.$country",
+ "event.$AppStart.$province"
+ ],
+ "filter":{
+ "conditions":[
+ {
+ "field":"event.$AppStart.$country",
+ "function":"equal",
+ "params":[
+ "韩国"
+ ]
+ },
+ {
+ "field":"event.$AppStart.$province",
+ "function":"equal",
+ "params":[
+ "蔚山广域市"
+ ]
+ }
+ ]
+ },
+ "filter_field_steps":[
+ 0,
+ 0
+ ],
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "rollup":false,
+ "sampling_factor":64,
+ "use_cache":false,
+ "extend_over_end_date":"true"
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ date 
+ 数据日期 
+ 查询统计的日期 
+ String 
+ 是 
+
+ ----> 
+ funnel_root 
+ 漏斗的根节点 
+ 漏斗的根节点事件名称 
+ String 
+ 是 
+
+ ----> 
+ funnel_level_{n} 
+ 漏斗的等 n 层节点 
+ 漏斗的等 n 层节点事件名称 
+ String 
+ 是 
+
+ ----> 
+ total_user 
+ 初始人数 
+ 漏斗初始人数 
+ Integer 
+ 是 
+
+ ----> 
+ completion_rate 
+ 最终转化率 
+ 漏斗的最终转化率，小于 1，保留 4 位小数 
+ Double 
+ 是 
+
+ ----> 
+ completion_converted_user 
+ 最终转化人数 
+ 最终转化人数 
+ Integer 
+ 是 
+
+ ----> 
+ convert_user_step_{n} 
+ 漏斗第 n 步转化人数 
+ 漏斗第 n 步转化人数 
+ Integer 
+ 是 
+
+ ----> 
+ wastage_user_step_{n} 
+ 漏斗第 n 步流失人数 
+ 漏斗第 n 步流失人数 
+ Integer 
+ 是 
+
+ ----> 
+ convert_rate_step_{n} 
+ 漏斗第 n 步转化率 
+ 漏斗的第 n 步转化率，小于 1 ，保留 4 位小数 
+ Double 
+ 是 
+
+ ----> 
+ median_converted_time_step_{n} 
+ 漏斗第 n 步转化中位数 
+ 漏斗第 n 步转化中位数 
+ Double 
+ 是 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"3b24d20f13ff49ef8a45846bb0d8b5c2",
+ "data":{
+ "metadata_columns":{
+ "date":"DATE",
+ "wastage_user_step_1":"INT",
+ "convert_user_step_2":"INT",
+ "convert_user_step_1":"INT",
+ "funnel_root":"STRING",
+ "funnel_level_2":"STRING",
+ "funnel_level_1":"STRING",
+ "wastage_user_step_2":"INT",
+ "convert_rate_step_2":"DOUBLE",
+ "completion_rate":"DOUBLE",
+ "total_user":"INT",
+ "convert_rate_step_1":"DOUBLE",
+ "median_converted_time_step_2":"DOUBLE",
+ "median_converted_time_step_1":"DOUBLE",
+ "completion_converted_user":"INT"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-07-03 00:00:00",
+ 13,
+ 2,
+ 8,
+ "$AppStart",
+ "$AppClick",
+ "$AppViewScreen",
+ 6,
+ 25,
+ 9.52,
+ 21,
+ 38.1,
+ 2490,
+ 89087,
+ 2
+ ],
+ [
+ "2022-07-01 00:00:00",
+ 13,
+ 2,
+ 6,
+ "$AppStart",
+ "$AppClick",
+ "$AppViewScreen",
+ 4,
+ 33.33,
+ 10.53,
+ 19,
+ 31.58,
+ 12544,
+ 11671,
+ 2
+ ],
+ [
+ "2022-07-02 00:00:00",
+ 10,
+ 2,
+ 7,
+ "$AppStart",
+ "$AppClick",
+ "$AppViewScreen",
+ 5,
+ 28.57,
+ 11.76,
+ 17,
+ 41.18,
+ 7801,
+ 18599,
+ 2
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/funnel/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"funnel":{"steps":[{"event_name":"$AppStart"},{"event_name":"$AppViewScreen"},{"event_name":"$AppClick"}],"max_convert_time":10080},"by_fields": [ "event.$AppStart.$country","event.$AppStart.$province" ],"filter": { "conditions": [ { "field": "event.$AppStart.$country","function": "equal","params": [ "韩国" ] },{ "field": "event.$AppStart.$province","function": "equal","params": [ "蔚山广域市" ] } ] },"filter_field_steps": [ 0,0 ],"from_date": "2022-07-01","to_date": "2022-07-03","rollup": false,"sampling_factor": 64,"use_cache": false, "extend_over_end_date": "true" }' \
+ --compressed \
+ --insecure 
+
+ 留存分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/retention/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ first_event 
+ 初始行为 
+ 用户在神策分析-留存分析页面上定义的初始行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 初始行为事件名 
+ 初始行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ second_event 
+ 后续行为 
+ 用户在神策分析-留存分析页面上定义的后续行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 后续行为事件名 
+ 后续行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ user_filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ duration 
+ 留存天数 
+ 查看多长事件的留存数据 
+ Integer 
+ 必填 
+ 无 
+
+ is_wastage 
+ 留存 OR 流失 
+ 查看留存还是流失信息， true 流失， false 留存 
+ Boolean 
+ 必填 
+ false 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ rollup 
+ 是否查询汇总数据 
+ 查询的数据返回汇总还是明细数据，true 只查汇总数据，false 只查明细数据 
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "first_event":{
+ "event_name":"$AppViewScreen",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "second_event":{
+ "event_name":"$AppClick",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "measures":[
+ {
+ "event_name":"$MPShow",
+ "aggregator":"general",
+ "filter":{
+
+ }
+ }
+ ],
+ "duration":7,
+ "unit":"DAY",
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "use_cache":true,
+ "is_wastage":false,
+ "sampling_factor":64,
+ "user_filter":{
+
+ },
+ "rollup":false
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ date 
+ 数据日期 
+ 查询统计的日期 
+ String 
+ 是 
+
+ ----> 
+ total_user 
+ 初始人数 
+ 初始行为的总人数 
+ Integer 
+ 是 
+
+ ----> 
+ retention_user_date_period_{n} 
+ 第 n 日留存用户数 
+ 第 n 日留存用户数 
+ Integer 
+ 是 
+
+ ----> 
+ retention_rate_date_period_{n} 
+ 第 n 日留存率 
+ 第 n 日留存率，小于 1 ，保留 4 位小数 
+ Double 
+ 是 
+
+ ----> 
+ measure_date_period_{n} 
+ 第 n 日同时显示的指标数据 
+ 第 n 日同时显示的指标数据 
+ Double 
+ 是 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"2906598041854a48922f86b673e11ba3",
+ "data":{
+ "metadata_columns":{
+ "date":"DATE",
+ "retention_rate_date_period_0":"DOUBLE",
+ "retention_rate_date_period_1":"DOUBLE",
+ "retention_rate_date_period_2":"DOUBLE",
+ "retention_rate_date_period_7":"DOUBLE",
+ "retention_rate_date_period_3":"DOUBLE",
+ "retention_rate_date_period_4":"DOUBLE",
+ "retention_rate_date_period_5":"DOUBLE",
+ "retention_rate_date_period_6":"DOUBLE",
+ "measure_date_period_0":"DOUBLE",
+ "retention_user_date_period_3":"LONG",
+ "measure_date_period_1":"DOUBLE",
+ "retention_user_date_period_2":"LONG",
+ "retention_user_date_period_1":"LONG",
+ "retention_user_date_period_0":"LONG",
+ "measure_date_period_4":"DOUBLE",
+ "retention_user_date_period_7":"LONG",
+ "measure_date_period_5":"DOUBLE",
+ "retention_user_date_period_6":"LONG",
+ "measure_date_period_2":"DOUBLE",
+ "retention_user_date_period_5":"LONG",
+ "measure_date_period_3":"DOUBLE",
+ "retention_user_date_period_4":"LONG",
+ "measure_date_period_6":"DOUBLE",
+ "measure_date_period_7":"DOUBLE",
+ "initial_user":"LONG"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-07-01",
+ "48.43",
+ "2.03",
+ "2.13",
+ "2.74",
+ "2.74",
+ "1.93",
+ "3.15",
+ "3.15",
+ 281,
+ 27,
+ 10,
+ 21,
+ 20,
+ 477,
+ 8,
+ 27,
+ 17,
+ 31,
+ 19,
+ 31,
+ 10,
+ 19,
+ 24,
+ 14,
+ 985
+ ],
+ [
+ "2022-07-02",
+ "48.49",
+ "2.82",
+ "2.72",
+ "2.82",
+ "2.52",
+ "3.32",
+ "2.31",
+ "2.21",
+ 299,
+ 25,
+ 13,
+ 27,
+ 28,
+ 482,
+ 19,
+ 28,
+ 21,
+ 22,
+ 22,
+ 23,
+ 16,
+ 33,
+ 18,
+ 18,
+ 994
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/retention/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"first_event":{"event_name":"$AppViewScreen","filter":{},"relevance_field":""},"second_event":{"event_name":"$AppClick","filter":{},"relevance_field":""},"measures":[{"event_name":"$MPShow","aggregator":"general","filter":{}}],"duration":7,"unit":"DAY","from_date":"2022-07-01","to_date":"2022-07-03","extend_over_end_date":true,"show_zero_day":"checked","userUnit":"人","isSaved":false,"sub_task_type":"RETENTION","last_zero":true,"rollup_date":true,"use_cache":true,"is_wastage":false,"sli":{},"sampling_factor":64,"subject_id":"$user_id","user_filter":{},"rollup":false}' \
+ --compressed \
+ --insecure 
+
+ 分布分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/addiction/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ event_name 
+ 事件名称 
+ 需要进行分布分析的事件名称 
+ String 
+ 必填 
+ 无 
+
+ filter 
+ 全局事件筛选 
+ 针对当前分布分析整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ user_filter 
+ 全局用户筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ measure 
+ 分布分析指标 
+ 需要进行分布分析的事件指标属性 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分布分析事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 事件属性 
+ 参与分布分析事件属性完整名称， 例如：event.$AppClick.$event_duration 
+ String 
+ 必填 
+ 无 
+
+ addition_measures 
+ 同时显示的指标 
+ 需要进行与分布分析同时查询的其他指标 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分布分析事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ measure_type 
+ 测量类型 
+ 测量类型,可以是times/period, period是当按小时数或者天数进行分布分析时使用 
+ String 
+ 必填 
+ times 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ by_filed 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ String 
+ 可选 
+ 无 
+
+ result_bucket_param 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ Array 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ rollup 
+ 是否查询汇总数据 
+ 查询的数据返回汇总还是明细数据，true 只查汇总数据，false 只查明细数据 
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "event_name":"$AppClick",
+ "filter":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$lib",
+ "function":"contain",
+ "params":[
+ "iOS",
+ "Android"
+ ]
+ }
+ ]
+ },
+ "from_date":"2022-09-29",
+ "to_date":"2022-10-12",
+ "measure_type":"times",
+ "result_bucket_param":[
+ "5",
+ "10",
+ "15"
+ ],
+ "sampling_factor":64,
+ "use_cache":true,
+ "unit":"week",
+ "measure":null,
+ "user_filter":{
+ "conditions":[
+ {
+ "field":"user.$country",
+ "function":"contain",
+ "params":[
+ "中国",
+ "日本",
+ "韩国"
+ ]
+ }
+ ]
+ },
+ "addition_measures":[
+ {
+ "event_name":"$Anything",
+ "aggregator":"general"
+ }
+ ],
+ "by_field":"event.$Anything.$province"
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ by_value 
+ 数据维度 
+ 查询统计的日期或者其他查看维度的值 
+ String 
+ 是 
+
+ ----> 
+ total_user 
+ 总人数 
+ 满足筛选条件的总人数 
+ Integer 
+ 是 
+
+ ----> 
+ total_measure 
+ 同时显示的指标值 
+ 同时显示的指标值 
+ Double 
+ 否 
+
+ ----> 
+ bucket_region_{n} 
+ 第 n 个分桶的边界值 
+ 数值类分布的分桶边界， 左开右闭的区间标识，例如 (10,20] 
+ String 
+ 是 
+
+ ----> 
+ addiction_user_bucket_{n} 
+ 第 n 个分桶的内的用户数 
+ 第 n 个分桶的内的用户数 
+ Integer 
+ 是 
+
+ ----> 
+ addiction_rate_bucket_{n} 
+ 第 n 个分桶的内的用户分布率 
+ 第 n 个分桶的内的用户分布率， 小于 1，保留 4 位小数 
+ Double 
+ 是 
+
+ ----> 
+ addiction_measure_bucket_{n} 
+ 第 n 个分桶的内的同时显示的指标值 
+ 第 n 个分桶的内的同时显示的指标值 
+ Double 
+ 否 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"23b2112796184503bac4b9620fc21cfa",
+ "data":{
+ "by_field":"",
+ "metadata_columns":{
+ "by_value":"STRING",
+ "addiction_rate_bucket_3":"DOUBLE",
+ "total_user":"INT",
+ "bucket_region_1":"STRING",
+ "addiction_rate_bucket_2":"DOUBLE",
+ "addiction_rate_bucket_1":"DOUBLE",
+ "bucket_region_2":"STRING",
+ "total_measure":"DOUBLE",
+ "bucket_region_3":"STRING",
+ "addiction_user_bucket_3":"INT",
+ "addiction_user_bucket_1":"INT",
+ "addiction_user_bucket_2":"INT",
+ "addiction_measure_bucket_2":"DOUBLE",
+ "addiction_measure_bucket_3":"DOUBLE",
+ "addiction_measure_bucket_1":"DOUBLE"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-07-01",
+ 0,
+ 989,
+ "[1, 3)",
+ 4.35,
+ 95.65,
+ "[3, 5)",
+ 662,
+ "[5, 10)",
+ 0,
+ 946,
+ 43,
+ 18,
+ 0,
+ 644
+ ],
+ [
+ "2022-07-02",
+ 0.21,
+ 973,
+ "[1, 3)",
+ 7.09,
+ 92.7,
+ "[3, 5)",
+ 648,
+ "[5, 10)",
+ 2,
+ 902,
+ 69,
+ 44,
+ 0,
+ 604
+ ],
+ [
+ "2022-07-03",
+ 0.3,
+ 1015,
+ "[1, 3)",
+ 4.73,
+ 94.98,
+ "[3, 5)",
+ 693,
+ "[5, 10)",
+ 3,
+ 964,
+ 48,
+ 27,
+ 1,
+ 665
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/addiction/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"event_name":"$MPShow","from_date":"2022-07-01","to_date":"2022-07-03","measure_type":"times","result_bucket_param":[],"sampling_factor":64,"use_cache":true,"unit":"DAY","subject_id":"$user_id","rollup_date":false,"addition_measures":[{"event_name":"$AppStart","aggregator":"general"}]}' \
+ --compressed \
+ --insecure 
+
+ 间隔分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/interval/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ first_event 
+ 初始行为 
+ 用户在神策分析-间隔分析页面上定义的初始行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 初始行为事件名 
+ 初始行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ second_event 
+ 后续行为 
+ 用户在神策分析-间隔分析页面上定义的后续行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 后续行为事件名 
+ 后续行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ quantiles 
+ 间隔分析的指标 
+
+ 查询哪些间隔类数据 
+
+ 10 : P10 
+ 25 : 下四分位 
+ 50 : 中位数 
+ 75 : 上四分位 
+ 90 : p90 
+
+ Array<Integer> 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ by_event 
+ 分组事件 
+ 按初始行为事件分组还是后续行为事件分组, first/second 
+ String 
+ 必填 
+ 无 
+
+ bucket_param 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ Array 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ rollup 
+ 是否查询汇总数据 
+ 查询的数据返回汇总还是明细数据，true 只查汇总数据，false 只查明细数据 
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "filter":{
+ },
+ "first_event":{
+ "event_name":"$AppClick",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "second_event":{
+ "event_name":"$AppClick",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "unit":"DAY",
+ "measure_type":"other",
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "use_cache":true,
+ "quantiles":[
+ 10,
+ 25,
+ 50,
+ 75,
+ 90
+ ],
+ "bucket_param":[
+
+ ],
+ "by_field":"event.$AppClick.$country",
+ "by_event":"first",
+ "type":"first",
+ "sampling_factor":64,
+ "rollup":false
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ date 
+ 数据日期 
+ 查询统计的日期 
+ String 
+ 是 
+
+ ----> 
+ uniqavg_cnt 
+ 人均转化数 
+ 人均转化数 
+ String 
+ 是 
+
+ ----> 
+ by_field 
+ 查看维度 
+ 查看维度的值 
+ String 
+ 是 
+
+ ----> 
+ 10 
+ P10 
+ P10 
+ String 
+ 否 
+
+ ----> 
+ 25 
+ 下四分位 
+ 下四分位 
+ String 
+ 否 
+
+ ----> 
+ 50 
+ 中位数 
+ 中位数 
+ String 
+ 否 
+
+ ----> 
+ 75 
+ 上四分位 
+ 上四分位 
+ String 
+ 否 
+
+ ----> 
+ 90 
+ P90 
+ P90 
+ String 
+ 否 
+
+ ----> 
+ cnt 
+ 总数 
+ 总数 
+ String 
+ 是 
+
+ ----> 
+ people 
+ 转化总人数 
+ 转化总人数 
+ String 
+ 是 
+
+ ----> 
+ min_time 
+ 最小值 
+ 最小值 
+ String 
+ 是 
+
+ ----> 
+ max_time 
+ 最大值 
+ 最大值 
+ String 
+ 否 
+
+ ----> 
+ uniqavg_time 
+ 人均转化时间 
+ 人均转化时间 
+ String 
+ 否 
+
+ ----> 
+ avg_time 
+ 平均转化时间 
+ 平均转化时间 
+ String 
+ 否 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"6117546b4cd44cf79a85c1c7fa2f3e04",
+ "data":{
+ "metadata_columns":{
+ "date":"DATE",
+ "uniqavg_cnt":"DOUBLE",
+ "by_field":"STRING",
+ "25":"DOUBLE",
+ "cnt":"DOUBLE",
+ "people":"DOUBLE",
+ "min_time":"DOUBLE",
+ "uniqavg_time":"DOUBLE",
+ "90":"DOUBLE",
+ "max_time":"DOUBLE",
+ "50":"DOUBLE",
+ "75":"DOUBLE",
+ "avg_time":"DOUBLE",
+ "10":"DOUBLE"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-07-01",
+ 1.03,
+ "中国",
+ 7550,
+ 68,
+ 66,
+ 328,
+ 16686.77,
+ 31590,
+ 45802,
+ 17462,
+ 24248,
+ 16419.93,
+ 2236
+ ],
+ [
+ "2022-07-01",
+ 1,
+ "韩国",
+ 5973,
+ 72,
+ 72,
+ 276,
+ 16890.61,
+ 34792,
+ 63610,
+ 14878,
+ 26667,
+ 16890.61,
+ 2712
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/interval/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"filter":{},"first_event":{"event_name":"$AppClick","filter":{},"relevance_field":""},"second_event":{"event_name":"$AppClick","filter":{},"relevance_field":""},"unit":"DAY","measure_type":"other","from_date":"2022-07-01","to_date":"2022-07-03","extend_over_end_date":true,"rollup_date":true,"use_cache":true,"quantiles":[10,25,50,75,90],"bucket_param":[],"by_field":"event.$AppClick.$country","by_event":"first","type":"first","sampling_factor":64,"rollup":false}' \
+ --compressed \
+ --insecure 
+
+ 归因分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/attribution/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ attribution_events 
+ 待归因事件信息 
+ 用户在神策分析-归因分析页面上定义的待归因事件 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ events 
+ 待归因事件集合 
+ 待归因事件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 待归因事件集合 
+ 初始行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ link_events 
+ 关联的事件属性 
+ 关联的事件属性，具体的定义参考后续的 link_events 定义 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ by_fields 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ target_event 
+ 目标事件 
+ 用户在神策分析-归因分析页面上定义的目标事件 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 目标事件名 
+ 目标事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 事件的指标类型 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ direct_conversion 
+ 直接转化参与归因计算 
+ 若一个“目标转化事件”在转化前，没有发生任何相关的“待归因事件”，则认为该“目标转化事件”属于直接转化。 
+ Boolean 
+ 必填 
+ 无 
+
+ model_type 
+ 分析模型 
+ 用户在神策分析-归因分析页面上定义的分析模型，详细参考： 归因分析分析模型 
+ String 
+ 必填 
+ 无 
+
+ lookback_window 
+ 归因窗口期 
+ 归因窗口期 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ unit 
+ 归因窗口期单位 
+ 归因窗口期单位 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ value 
+ 归因窗口大小 
+ 归因窗口大小 
+ Integer 
+ 必填 
+ 无 
+
+ link_events 
+ 关联事件 
+ 关联事件信息 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ event_name 
+ 关联事件名 
+ 关联事件名 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ link_properties 
+ 关联的属性集合 
+ 关联的属性集合 
+ Array<String> 
+ 必填 
+ 无 
+
+ bucket_param 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ Array 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ 完整请求参数示例 
+
+ {
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "use_cache":false,
+ "direct_conversion":true,
+ "target_event":{
+ "event_name":"$AppViewScreen",
+ "aggregator":"general",
+ "field":"",
+ "filter":{
+
+ }
+ },
+ "link_events":[
+
+ ],
+ "attribution_events":{
+ "events":[
+ {
+ "event_name":"$AppClick",
+ "link_events":[
+ {
+ "event_name":"$AppViewScreen",
+ "link_properties":{
+
+ }
+ }
+ ]
+ }
+ ],
+ "filter":{
+
+ },
+ "by_fields":[
+ "event.$Anything.$province"
+ ]
+ },
+ "filter":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$country",
+ "function":"equal",
+ "params":[
+ "中国"
+ ]
+ }
+ ]
+ },
+ "model_type":"first",
+ "lookback_window":{
+ "unit":"DAY",
+ "value":7
+ }
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ click_times 
+ 总点击数 
+ 总点击数 
+ String 
+ 是 
+
+ ----> 
+ conversion_value_rate 
+ 贡献度 
+ 贡献度 
+ String 
+ 是 
+
+ ----> 
+ goal_conversion 
+ 目标事件的点击数 
+ 目标事件的点击数 
+ String 
+ 是 
+
+ ----> 
+ event_name 
+ 目标事件 
+ 目标事件 
+ String 
+ 否 
+
+ ----> 
+ converted_number 
+ 有效转化点击数 
+ 有效转化点击数 
+ String 
+ 否 
+
+ ----> 
+ converted_user_number 
+ 有效转化点击用户数 
+ 有效转化点击用户数 
+ String 
+ 否 
+
+ ----> 
+ {by_field[i]} 
+ 查看维度 
+ 查看维度的值 
+ String 
+ 否 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"3f2406885ea54ed1a4cf4083968f09ef",
+ "data":{
+ "metadata_columns":{
+ "click_times":"LONG",
+ "conversion_value_rate":"DOUBLE",
+ "goal_conversion":"DOUBLE",
+ "converted_number":"LONG",
+ "event_name":"STRING",
+ "converted_user_number":"LONG",
+ "event.$Anything.$province":"STRING"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ 51,
+ 2.05,
+ 21,
+ 18,
+ "$AppClick",
+ 16,
+ "内蒙古自治区"
+ ],
+ [
+ 47,
+ 2.05,
+ 21,
+ 15,
+ "$AppClick",
+ 12,
+ "青海省"
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/attribution/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"from_date":"2022-07-01","to_date":"2022-07-03","use_cache":false,"rangeText":"","direct_conversion":true,"target_event":{"event_name":"$AppViewScreen","aggregator":"general","field":"","filter":{}},"link_events":[],"attribution_events":{"events":[{"event_name":"$AppClick","link_events":[{"event_name":"$AppViewScreen","link_properties":{}}]}],"filter":{},"by_fields":["event.$Anything.$province"]},"filter":{"conditions":[{"field":"event.$Anything.$country","function":"equal","params":["中国"]}]},"model_type":"first","lookback_window":{"unit":"DAY","value":7}}' \
+ --compressed \
+ --insecure 
+
+ LTV 分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/ltv/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ start_sign 
+ 初始事件 
+ 用户在神策分析-ltv分析页面上定义的初始事件 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ start_event 
+ 初始事件名 
+ 初始事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ measures 
+ 营收事件信息 
+ 用户在神策分析-ltv分析页面上定义的营收事件 
+ Array<JSON> 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 营收事件名 
+ 营收事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 事件的指标类型 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ name 
+ 营收事件别名 
+ 营收事件别名 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ profit_rate 
+ 利润比例 
+ 利润比例 
+ Integer 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ duration 
+ 观测天数 
+ 查看多长时间的 ltv 数据 
+ Integer 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "start_sign":{
+ "start_event":"$MPShow",
+ "filters":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$ip",
+ "function":"isSet",
+ "params":[
+
+ ]
+ }
+ ]
+ }
+ },
+ "measures":[
+ {
+ "event_name":"activityview",
+ "aggregator":"average",
+ "name":"activityview的LTV_AVG",
+ "profit_rate":100
+ }
+ ],
+ "from_date":"2022-10-06",
+ "to_date":"2022-10-12",
+ "unit":"DAY",
+ "by_fields":[
+ "event.$Anything.$country"
+ ],
+ "duration":90,
+ "use_cache":true,
+ "filter":{
+ "conditions":[
+ {
+ "field":"user.$country",
+ "function":"notSet",
+ "params":[
+
+ ]
+ },
+ {
+ "field":"user.$province",
+ "function":"notSet",
+ "params":[
+
+ ]
+ }
+ ]
+ },
+ "bucket_params":{
+
+ }
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ date 
+ 数据日期 
+ 查询统计的日期 
+ String 
+ 是 
+
+ ----> 
+ total_user 
+ 初始人数 
+ 初始行为的总人数 
+ String 
+ 是 
+
+ ----> 
+ {measure_name} 
+ 营收事件的名 
+ 营收事件的名 
+ String 
+ 是 
+
+ ----> 
+ {by_fields[i]} 
+ 查看维度 
+ 查看维度元素 
+ String 
+ 是 
+
+ ----> 
+ amount_ltv_{n} 
+ 第 n 日 ltv 数 
+ 第 n 日 ltv 数 
+ Integer 
+ 是 
+
+ ----> 
+ rate_ltv_{n} 
+ 第 n 日 ltv 率 
+ 第 n 日 ltv 率，小于 1，保留 4 位小数 
+ Double 
+ 是 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"7408254186664dc1909640c79f7cd791",
+ "data":{
+ "metadata_columns":{
+ "date":"DATE",
+ "percent_ltv_0":"STRING",
+ "measure_name":"STRING",
+ "initial_user":"LONG",
+ "amount_ltv_0":"STRING"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ "2022-10-13",
+ "0",
+ "activityview的LTV_AVG",
+ 1228,
+ "0.75"
+ ],
+ [
+ "2022-10-13",
+ "52.00",
+ "realname的LTV_AVG",
+ 1228,
+ "0.39"
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/ltv/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"start_sign":{"start_event":"$MPShow","filters":{"conditions":[{"field":"event.$Anything.$ip","function":"isSet","params":[]}]},"cname":"小程序显示"},"measures":[{"event_name":"activityview","aggregator":"average","name":"activityview的LTV_AVG","profit_rate":100}],"from_date":"2022-10-06","to_date":"2022-10-12","unit":"DAY","by_fields":["event.$Anything.$country"],"detail_and_rollup":true,"duration":90,"open_predict":false,"use_cache":true,"filter":{"conditions":[{"field":"user.$country","function":"notSet","params":[],"$$render_index":1},{"field":"user.$province","function":"notSet","params":[],"$$render_index":2}]},"bucket_params":{}}' \
+ --compressed \
+ --insecure 
+
+ 属性分析报告接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/user-analytics/report 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ measures 
+ 要查询的指标集合 
+ 用户在神策分析-事件分析页面上看到的所有指标的集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对全部指标生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 可选 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ 完整请求参数示例 
+
+ {
+ "measures":[
+ {
+ "aggregator":"count",
+ "field":""
+ }
+ ],
+ "filter":{
+ "conditions":[
+ {
+ "field":"user.vehicle_system",
+ "function":"equal",
+ "params":[
+ "Z4"
+ ]
+ }
+ ]
+ },
+ "by_fields":[
+ "user.vehicle_type",
+ "user.vehicle_year"
+ ],
+ "use_cache":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+
+ 含义 
+
+ 规则说明 
+
+ 数据类型 
+ 是否必须 
+
+ code 
+
+ 当前查询是否成功标识 
+
+ 查询成功：SUCCESS，其他情况为查询失败 
+
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ metadata_columns 
+ 本次查询的返回的数据列信息 
+ 本次查询的返回的数据列及其数据类型信息 
+ JSON 
+ 是 
+
+ ----> 
+ value 
+ 属性分析的指标值 
+ 属性分析的指标值 
+ String 
+ 是 
+
+ ----> 
+ {by_fields[i]} 
+ 查看维度 
+ 具体的查看维度， 如 车载系统（user.vehicle_system） 
+ String 
+ 否 
+
+ ----> 
+ truncated 
+ 是否截断标识 
+ 本次查询查询返回的数据结果是否发生了截断， true 截断，false 未截断 
+ Boolean 
+ 是 
+
+ ----> 
+ detail_rows 
+ 本次查询的返回的数据行 
+ 本次查询的返回的数据行，行内的数据序列与 metadata_columns 的一一对应 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"5c4edafb955e45fd889084422de1ca4d",
+ "data":{
+ "metadata_columns":{
+ "user.vehicle_year":"DOUBLE",
+ "user.vehicle_type":"STRING",
+ "value":"LONG"
+ },
+ "truncated":false,
+ "detail_rows":[
+ [
+ 3,
+ "高性能跑车",
+ 1287
+ ],
+ [
+ 4,
+ "旅行车",
+ 1275
+ ]
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/user-analytics/report' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"measures":[{"aggregator":"count","field":""}],"filter":{"conditions":[{"field":"user.vehicle_system","function":"equal","params":["Z4"]}]},"by_fields":["user.vehicle_type","user.vehicle_year"],"use_cache":true}' \
+ --compressed \
+ --insecure 
+
+ 用户明细报告 
+
+ 事件分析用户明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/segmentation/users 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ measures 
+ 要查询的指标集合 
+ 用户在神策分析-事件分析页面上看到的所有指标的集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分析的事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ name 
+ 指标名称 
+ 自定义的指标名称 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选条件 
+ 针对当前事件的筛选， 详细定义见下文 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对全部指标生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 可选 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ slice_by_values 
+ 查看哪个分组的用户明细 
+ by_fields 中有很多值， 需要看哪些值的用户，可以通过此参数设置 
+ Array<String> 
+ 可选 
+ 无 
+
+ slice_date 
+ 查看哪天的用户明细 
+ 查询区间内有很多日期，需要看哪天的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从1开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ false 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "measures":[
+ {
+ "event_name":"postpublish",
+ "aggregator":"unique",
+ "name":"发表帖子的用户数"
+ }
+ ],
+ "from_date":"2022-08-12",
+ "to_date":"2022-08-12",
+ "unit":"DAY",
+ "by_fields":[
+ "event.$Anything.post_label"
+ ],
+ "bucket_params":{
+
+ },
+ "slice_by_values":[
+ "音乐"
+ ],
+ "slice_date":"2022-08-12 00:00:00",
+ "filter":{
+
+ },
+ "page_size":50,
+ "page_index":1,
+ "limit":10,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true,
+ "use_cache":false
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/segmentation/users' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"measures":[{"event_name":"postpublish","aggregator":"unique","name":"发表帖子的用户数"}],"from_date":"2022-08-12","to_date":"2022-08-12","unit":"DAY","by_fields":["event.$Anything.post_label"],"detail_and_rollup":true,"enable_detail_follow_rollup_by_values_rank":true,"sub_task_type":"SEGMENTATION","time_zone_mode":"","server_time_zone":"","bucket_params":{},"slice_by_values":["音乐"],"slice_date":"2022-08-12 00:00:00","rollup_date":false,"oriMeasures":[{"event_name":"postpublish","aggregator":"unique","name":"发表帖子的用户数"}],"filter":{},"page_size":50,"page_index":1,"limit":10,"all_page":false,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"sort_by_field":"first_id","asc":true,"detail":true,"use_cache":false}' \
+ --compressed \
+ --insecure 
+
+ 漏斗分析用户明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/funnel/users 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ funnel 
+ 要查询的漏斗定义 
+ 用户在神策分析-漏斗分析页面上看到的漏斗定义信息 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ max_convert_time 
+ 窗口期 
+ 用户完成漏斗所有步骤的时间限制 
+ Integer 
+ 必填 
+ 无 
+
+ ----> 
+ steps 
+ 漏斗的步骤 
+ 漏斗的步骤集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名 
+ 组成漏斗步骤的事件名称 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见下文 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前漏斗整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ by_field_steps 
+ 查看维度映射关系 
+ 且和 ”by_fields” 请求参数保持一致 by_fields 数值的下标值为 index ，by_field_steps[index] 代表第 index 个分组值属于第几个 step 
+ Array 
+ 可选 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ slice_step 
+ 查看哪一步的用户明细 
+ 查看漏斗哪一个步骤的用户明细数据 
+ Integer 
+ 必填 
+ 无 
+
+ slice_by_values 
+ 查看哪个分组的用户明细 
+ by_fields中有很多值， 需要看哪些值的用户，可以通过此参数设置 
+ Array<String> 
+ 可选 
+ 无 
+
+ slice_date 
+ 查看哪天的用户明细 
+ 查询区间内有很多日期，需要看哪天的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从 1 开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ 无 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "calculation_caliber":"uniq",
+ "funnel":{
+ "steps":[
+ {
+ "event_name":"$AppStart"
+ },
+ {
+ "event_name":"$AppViewScreen"
+ },
+ {
+ "event_name":"postpublish"
+ }
+ ],
+ "max_convert_time":10080
+ },
+ "by_fields":[
+ "event.postpublish.post_label"
+ ],
+ "bucket_params":{
+
+ },
+ "by_field_steps":[
+ 2
+ ],
+ "filter":{
+
+ },
+ "filter_field_steps":[
+
+ ],
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "sampling_factor":64,
+ "use_cache":false,
+ "slice_step":"0",
+ "slice_by_values":[
+ "自驾游\n音乐\nDIY\n节日"
+ ],
+ "page_size":10,
+ "limit":1000,
+ "page_index":1,
+ "all_page":false,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/funnel/users' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"calculation_caliber":"uniq","funnel":{"steps":[{"event_name":"$AppStart"},{"event_name":"$AppViewScreen"},{"event_name":"postpublish"}],"max_convert_time":10080},"by_fields":["event.postpublish.post_label"],"bucket_params":{},"by_field_steps":[2],"filter":{},"filter_field_steps":[],"from_date":"2022-07-01","to_date":"2022-07-03","sampling_factor":64,"use_cache":false,"slice_step":"0","slice_end_date":"2022-07-03","slice_wastage_user":false,"slice_by_values":["自驾游\n音乐\nDIY\n节日"],"slice_date":null,"rollup_date":true,"page_size":10,"limit":1000,"page_index":1,"all_page":false,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"detail":true}' \
+ --compressed \
+ --insecure 
+
+ 留存分析用户明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/retention/users 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+
+ 含义 
+
+ 规则说明 
+
+ 数据类型 
+
+ 是否必须 
+
+ 缺省值 
+
+ first_event 
+ 初始行为 
+ 用户在神策分析-留存分析页面上定义的初始行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 初始行为事件名 
+ 初始行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ second_event 
+ 后续行为 
+ 用户在神策分析-留存分析页面上定义的后续行为 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 后续行为事件名 
+ 后续行为事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relevance_field 
+ 关联属性 
+ 当前步骤关联的其他事件属性 
+ String 
+ 可选 
+ 无 
+
+ user_filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ duration 
+ 留存天数 
+ 查看多长事件的留存数据 
+ Integer 
+ 必填 
+ 无 
+
+ is_wastage 
+ 留存 OR 流失 
+ 查看留存还是流失信息， true 流失， false 留存 
+ Boolean 
+ 必填 
+ false 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ slice_interval 
+ 查看第几天留存 
+ 查看第几天留存的用户明细，0 表示当天，null 表示全部 
+ Integer 
+ 可选 
+ 无 
+
+ slice_by_value 
+ 查看哪个分组的用户明细 
+ by_field 中有很多值， 需要看哪些值的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ slice_date 
+ 查看哪天的用户明细 
+ 查询区间内有很多日期，需要看哪天的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从1开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ false 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "first_event":{
+ "event_name":"$AppViewScreen",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "second_event":{
+ "event_name":"postpublish",
+ "filter":{
+
+ },
+ "relevance_field":""
+ },
+ "duration":7,
+ "unit":"DAY",
+ "from_date":"2022-07-01",
+ "to_date":"2022-07-03",
+ "use_cache":false,
+ "is_wastage":false,
+ "sampling_factor":64,
+ "by_fields":[
+
+ ],
+ "bucket_params":{
+
+ },
+ "by_events":[
+
+ ],
+ "user_filter":{
+ "conditions":[
+ {
+ "field":"user.vehicle_system",
+ "function":"equal",
+ "params":[
+ "Z4"
+ ]
+ }
+ ]
+ },
+ "slice_interval":"",
+ "slice_date":"2022-07-01",
+ "filter":{
+
+ },
+ "page_size":10,
+ "limit":1000,
+ "page_index":1,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/retention/users' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"first_event":{"event_name":"$AppViewScreen","filter":{},"relevance_field":""},"second_event":{"event_name":"postpublish","filter":{},"relevance_field":""},"duration":7,"unit":"DAY","from_date":"2022-07-01","to_date":"2022-07-03","use_cache":false,"is_wastage":false,"sampling_factor":64,"by_fields":[],"bucket_params":{},"by_events":[],"user_filter":{"conditions":[{"field":"user.vehicle_system","function":"equal","params":["Z4"]}]},"slice_interval":"","slice_date":"2022-07-01","filter":{},"page_size":10,"limit":1000,"page_index":1,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"detail":true}' \
+ --compressed \
+ --insecure 
+
+ 分布分析用户明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/addiction/users 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ event_name 
+ 事件名称 
+ 需要进行分布分析的事件名称 
+ String 
+ 必填 
+ 无 
+
+ filter 
+ 全局事件筛选 
+ 针对当前分布分析整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ user_filter 
+ 全局用户筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ measure 
+ 分布分析指标 
+ 需要进行分布分析的事件指标属性 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分布分析事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 事件属性 
+ 参与分布分析事件属性完整名称， 例如：event.$AppClick.$event_duration 
+ String 
+ 必填 
+ 无 
+
+ addition_measures 
+ 同时显示的指标 
+ 需要进行与分布分析同时查询的其他指标 
+ Array 
+ 可选 
+ 无 
+
+ ----> 
+ event_name 
+ 事件名称 
+ 参与分布分析事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 聚合方式 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ measure_type 
+ 测量类型 
+ 测量类型,可以是times/period, period是当按小时数或者天数进行分布分析时使用 
+ String 
+ 必填 
+ times 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ by_filed 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ String 
+ 可选 
+ 无 
+
+ result_bucket_param 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ Array 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ slice_freq 
+ 触发次数 
+ 查看事件触发次数为多少的用户明细列表 
+ Integer 
+ 可选 
+ 无 
+
+ slice_by_value 
+ 查看哪个分组的用户明细 
+ by_field中有很多值， 需要看哪些值的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从 1 开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ false 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "event_name":"$AppClick",
+ "filter":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$lib",
+ "function":"contain",
+ "params":[
+ "iOS",
+ "Android"
+ ]
+ }
+ ]
+ },
+ "from_date":"2022-09-29",
+ "to_date":"2022-10-12",
+ "measure_type":"times",
+ "result_bucket_param":[
+ "5",
+ "10",
+ "15"
+ ],
+ "sampling_factor":64,
+ "use_cache":true,
+ "unit":"week",
+ "measure":null,
+ "user_filter":{
+ "conditions":[
+ {
+ "field":"user.$country",
+ "function":"contain",
+ "params":[
+ "中国",
+ "日本",
+ "韩国"
+ ]
+ }
+ ]
+ },
+ "addition_measures":[
+ {
+ "event_name":"$Anything",
+ "aggregator":"general"
+ }
+ ],
+ "by_field":"event.$Anything.$province"
+ "slice_freq":2,
+ "page_size":10,
+ "limit":1000,
+ "page_index":1,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/addiction/users' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"event_name":"$AppClick","filter":{"conditions":[{"field":"event.$Anything.$lib","function":"contain","params":["iOS","Android"]}]},"from_date":"2022-09-29","to_date":"2022-10-12","measure_type":"times","result_bucket_param":["5","10","15"],"sampling_factor":64,"use_cache":true,"unit":"week","measure":null,"user_filter":{"conditions":[{"field":"user.$country","function":"contain","params":["中国","日本","韩国"]}]},"addition_measures":[{"event_name":"$Anything","aggregator":"general"}],"by_field":"event.$Anything.$province","slice_freq":2,"page_size":10,"limit":1000,"page_index":1,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"detail":true}' \
+ --compressed \
+ --insecure 
+
+ LTV 分析用户明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/ltv/users 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ start_sign 
+ 初始事件 
+ 用户在神策分析-ltv分析页面上定义的初始事件 
+ JSON 
+ 必填 
+ 无 
+
+ ----> 
+ start_event 
+ 初始事件名 
+ 初始事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ filter 
+ 筛选信息 
+ 针对当前事件的筛选， 详细定义见事件分析 filter 的定义 
+ JSON 
+ 可选 
+ 无 
+
+ measures 
+ 营收事件信息 
+ 用户在神策分析-ltv分析页面上定义的营收事件 
+ Array<JSON> 
+ 必填 
+ 无 
+
+ ----> 
+ event_name 
+ 营收事件名 
+ 营收事件完整名称， 例如：$AppClick 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ aggregator 
+ 事件的指标类型 
+ 分析事件的指标类型， 详细可参考 事件分析指标类型 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ name 
+ 营收事件别名 
+ 营收事件别名 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ profit_rate 
+ 利润比例 
+ 利润比例 
+ Integer 
+ 可选 
+ 无 
+
+ filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间起 
+ 查询日期范围的开始时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间止 
+ 查询日期范围的结束时间，格式为 yyyy-MM-dd 
+ String 
+ 必填 
+ 无 
+
+ unit 
+ 查看的时间粒度 
+ 查询数据的聚合粒度 详细可参看 聚合时间粒度说明 
+ String 
+ 必填 
+ 无 
+
+ duration 
+ 观测天数 
+ 查看多长时间的 ltv 数据 
+ Integer 
+ 必填 
+ 无 
+
+ by_fileds 
+ 查看维度 
+ 按什么维度查看，一般是事件属性、用户属性等维度 
+ Array 
+ 可选 
+ 无 
+
+ bucket_params 
+ 分桶方式 
+ 当查看维度的数据类型是数值时，可使用此参数进行数据切片 
+ JSON 
+ 可选 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ sampling_factor 
+ 抽样系数 
+ 是否开启抽样查询 
+ Integer 
+ 可选 
+ 64 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ slice_by_values 
+ 查看哪个分组的用户明细 
+ by_fields 中有很多值， 需要看哪些值的用户，可以通过此参数设置 
+ Array<String> 
+ 可选 
+ 无 
+
+ slice_date 
+ 查看哪天的用户明细 
+ 可查询区间内有很多日期，需要看哪天的用户，可以通过此参数设置 
+ String 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从 1 开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ false 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "start_sign":{
+ "start_event":"$MPShow",
+ "filters":{
+ "conditions":[
+ {
+ "field":"event.$Anything.$ip",
+ "function":"isSet",
+ "params":[
+
+ ]
+ }
+ ]
+ }
+ },
+ "measures":[
+ {
+ "event_name":"activityview",
+ "aggregator":"average",
+ "name":"activityview的LTV_AVG",
+ "profit_rate":100
+ }
+ ],
+ "from_date":"2022-10-06",
+ "to_date":"2022-10-12",
+ "unit":"DAY",
+ "by_fields":[
+ "event.$Anything.$country"
+ ],
+ "duration":90,
+ "use_cache":true,
+ "filter":{
+ "conditions":[
+ {
+ "field":"user.$country",
+ "function":"notSet",
+ "params":[
+
+ ]
+ },
+ {
+ "field":"user.$province",
+ "function":"notSet",
+ "params":[
+
+ ]
+ }
+ ]
+ },
+ "bucket_params":{
+
+ }
+	"slice_by_values":[
+ "音乐"
+ ],
+ "page_size":10,
+ "limit":1000,
+ "page_index":1,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/ltv/users' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"start_sign":{"start_event":"$MPShow","filters":{"conditions":[{"field":"event.$Anything.$ip","function":"isSet","params":[]}]}},"measures":[{"event_name":"activityview","aggregator":"average","name":"activityview的LTV_AVG","profit_rate":100}],"from_date":"2022-10-06","to_date":"2022-10-12","unit":"DAY","by_fields":["event.$Anything.$country"],"duration":90,"use_cache":true,"filter":{"conditions":[{"field":"user.$country","function":"notSet","params":[]},{"field":"user.$province","function":"notSet","params":[]}]},"bucket_params":{}"slice_by_values":["音乐"],"page_size":10,"limit":1000,"page_index":1,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"detail":true}' \
+ --compressed \
+ --insecure 
+
+ 用户列表明细接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/user/list 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ filter 
+ 全局筛选 
+ 针对当前查询整体生效的筛选条件 
+ JSON 
+ 可选 
+ 无 
+
+ ----> 
+ relation 
+ 多个筛选条件之间的关系 
+ 多个筛选条件之间的关系， and/or 
+ String 
+ 可选 
+ and 
+
+ ----> 
+ conditions 
+ 筛选条件集合 
+ 筛选条件集合 
+ Array 
+ 必填 
+ 无 
+
+ ----> 
+ field 
+ 筛选项 
+ 筛选项，一般是事件属性、用户属性等维度，例如：event.$Appclick.$ip App 元素点击的 IP 
+ String 
+ 必填 
+ 无 
+
+ ----> 
+ function 
+ 筛选函数 
+ 函数类型， 详细可参考 筛选函数的类型 
+ String 
+ 可选 
+ 无 
+
+ ----> 
+ params 
+ 筛选参数 
+ 具体的筛选内容 
+ Array 
+ 必填 
+ 无 
+
+ use_cache 
+ 是否使用缓存 
+ 优先尝试从缓存中查询数据，缓存无法命中时，从底层数据库中查询数据 
+ Boolean 
+ 可选 
+ true 
+
+ limit 
+ 最大返回条数 
+ 最大查询返回的数据条数 
+ Integer 
+ 可选 
+ 无 
+
+ page_size 
+ 每页返回的用户数 
+ 页面条数的多少，1 ~ 100 
+ Integer 
+ 必填 
+ 无 
+
+ page_index 
+ 查询的页码 
+ 页码序号， 从1开始 
+ Integer 
+ 必填 
+ 无 
+
+ detail 
+ 是否展示详情 
+ 是否展示详情，如果 true，则会按照 profile 中的列返回，false 则只返回基本的 id 列 
+ Boolean 
+ 可选 
+ false 
+
+ profiles 
+ 用户属性 
+ 指定哪些用户属性，为空表示所有用户属性 
+ Array<String> 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "filter":{
+ "conditions":[
+ {
+ "field":"user.user_group_fq2",
+ "function":"isTrue"
+ }
+ ]
+ },
+ "page_size":50,
+ "limit":1000,
+ "page_index":1,
+ "profiles":[
+ "user.$id",
+ "user.vehicle_type",
+ "user.vehicle_system"
+ ],
+ "detail":true,
+ "use_cache":false
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ page 
+ 本次查询的数据的分页信息 
+ 本次查询的数据的分页信息 
+ JSON 
+ 是 
+
+ ----> 
+ current_page 
+ 当前页 
+ 当前页面序号 
+ Integer 
+ 是 
+
+ ----> 
+ page_count 
+ 总页码 
+ 总页码 
+ Integer 
+ 是 
+
+ ----> 
+ total 
+ 总记录数 
+ 总记录数 
+ Integer 
+ 是 
+
+ ----> 
+ users 
+ 用户明细 
+ 返回的用户明细 
+ Array<JSON> 
+ 是 
+
+ ----> 
+ id 
+ 用户Id 
+ 用户ID 
+ String 
+ 是 
+
+ ----> 
+ first_id 
+ first id 
+ first id 
+ String 
+ 是 
+
+ ----> 
+ second_id 
+ second id 
+ second id 
+ String 
+ 是 
+
+ ----> 
+ distinct_id 
+ distinct id 
+ distinct id 
+ String 
+ 是 
+
+ ----> 
+ profiles 
+ 用户画像信息 
+ 用户画像信息 
+ JSON 
+ 是 
+
+ ----> 
+ column_names 
+ 用户画像的字段信息 
+ 用户画像的字段信息 
+ Array 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "page":{
+ "current_page":1,
+ "page_count":1,
+ "total":2
+ },
+ "users":[
+ {
+ "id":"-8961289991947891759",
+ "first_id":"7tpEmL7hMALkIinn",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"四门轿车",
+ "$id":"-8961289991947891759",
+ "vehicle_system":"7"
+ }
+ },
+ {
+ "id":"-9176729725231428021",
+ "first_id":"PdU0xVm67XyrA8K7",
+ "second_id":"",
+ "distinct_id":"",
+ "column_names":[
+ "$id",
+ "vehicle_type",
+ "vehicle_system"
+ ],
+ "profiles":{
+ "vehicle_type":"旅行车",
+ "$id":"-9176729725231428021",
+ "vehicle_system":"5"
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/user/list' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"filter":{"conditions":[{"field":"user.user_group_fq2","function":"isTrue"}]},"page_size":50,"limit":1000,"page_index":1,"profiles":["user.$id","user.vehicle_type","user.vehicle_system"],"detail":true,"use_cache":false}' \
+ --compressed \
+ --insecure 
+
+ 用户行为序列 
+
+ 用户行为列表查询接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/user/behavior 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+
+ 含义 
+
+ 规则说明 
+
+ 数据类型 
+
+ 是否必须 
+
+ 缺省值 
+
+ users 
+ 用户 id 列表 
+ 需要查询的用户列表 
+ Array 
+ 必填 
+ 无 
+
+ from_date 
+ 查询时间段起 
+ 查询时间段起 
+ String 
+ 必填 
+ 无 
+
+ to_date 
+ 查询时间段止 
+ 查询时间段止 
+ String 
+ 必填 
+ 无 
+
+ distinct_id 
+ 是否神策 ID 
+ false 表示 users 参数指定的是神策内部的神策 ID（即 events 表中的 user_id 字段和 users 表中的 ID 字段）；true 表示传入的是 distinct_id  
+ Boolean 
+ 可选 
+ false 
+
+ 完整请求参数示例 
+
+ {
+ "users":[
+ "02ta9OJYJVXcDbqs"
+ ],
+ "from_date":"2022-09-29",
+ "to_date":"2022-09-29",
+ "distinct_id":true
+} 
+ 接口响应参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ distinct_id 
+ 神策ID 
+ 神策ID 
+ String 
+ 是 
+
+ ----> 
+ user_id 
+ 用户 ID 
+ 用户 ID 
+ String 
+ 是 
+
+ ----> 
+ event 
+ 触发的事件名 
+ 触发的事件名 
+ String 
+ 是 
+
+ ----> 
+ time 
+ 触发事件的时间 
+ 触发事件的时间 
+ String 
+ 是 
+
+ ----> 
+ properties 
+ 触发事件的属性 
+ 触发事件的属性 
+ JSON 
+ 是否 
+
+ ----> 
+ profiles 
+ 触发事件时的用户属性 
+ 触发事件时的用户属性 
+ JSON 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+ "request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "events":[
+ {
+ "distinct_id":"02ta9OJYJVXcDbqs",
+ "user_id":"-3966990756759511917",
+ "event":"realnameview",
+ "time":"2022-09-29 00:26:10.878",
+ "properties":{
+ "$ip":"127.0.0.1",
+ "$lib":"Android",
+ "$event_duration":293,
+ "$element_content":"召回查询",
+ "$share_depth":355,
+ "$referrer":"referrer4",
+ "$referrer_host":"host4",
+ "$country":"美国",
+ "$screen_width":1100,
+ "$screen_height":631,
+ "$utm_content":"内容2",
+ "$utm_campaign":"广告1",
+ "$utm_medium":"媒介3",
+ "$utm_term":"广告词2",
+ "$utm_source":"B站",
+ "$app_version":"2.0",
+ "$os":"iOS",
+ "$os_version":"9.0",
+ "$wifi":1,
+ "$resume_from_background":0,
+ "$is_first_day":0,
+ "$is_first_time":0,
+ "$browser":"Safari",
+ "$browser_version":"55.0.2883.95",
+ "$utm_matching_type":"Cookie数据精确匹配模式",
+ "$province":"南达科他",
+ "$city":"苏福尔斯",
+ "$network_type":"4G",
+ "$viewport_width":991,
+ "$viewport_position":17,
+ "$viewport_height":429,
+ "$manufacturer":"Apple",
+ "$model":"iPhone6s plus",
+ "$carrier":"中国联通",
+ "$url":"url1",
+ "$url_path":"path4",
+ "$title":"标题2"
+ },
+ "profiles":{
+
+ }
+ }
+ ]
+ }
+} 
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/user/behavior' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"users":["02ta9OJYJVXcDbqs"],"from_date":"2022-09-29","to_date":"2022-09-29", "distinct_id": true}' \
+ --compressed \
+ --insecure 
+
+ 自定义查询 
+
+ 自定义 SQL 查询接口 
+
+ API 服务地址及请求方法 
+
+ /api/v3/analytics/v1/model/sql/query 
+ POST 
+
+ 请求参数说明 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+ 缺省值 
+
+ sql 
+ 查询 sql 
+ 查询 sql 
+ String 
+ 必填 
+ 无 
+
+ limit 
+ 最大返回条数 
+ 最大返回条数 
+ String 
+ 可选 
+ 无 
+
+ 完整请求参数示例 
+
+ {
+ "sql":"select * from events where user_id = -8565168885686534080 and day = 19174 and `$receive_time` = 1663900415616 order by `time` ",
+ "limit":"1"
+} 
+
+ 接口响应参数说明 
+
+ 该接口采用流式响应机制，以逐行方式实时返回数据，每行均为独立且完整的 JSON 对象
+
+ 数据格式如下： 
+
+ 参数名 
+ 含义 
+ 规则说明 
+ 数据类型 
+ 是否必须 
+
+ code 
+ 当前查询是否成功标识 
+ 查询成功：SUCCESS，其他情况为查询失败 
+ String 
+ 是 
+
+ message 
+ 当前查询的简要说明 
+
+ String 
+ 否 
+
+ request_id 
+ 本次查询的 trace ID 
+ 方便后续的问题跟踪 
+ String 
+ 是 
+
+ data 
+ 本次查询的具体数据 
+
+ JSON 
+ 否 
+
+ ----> 
+ data 
+ 此次查询具体的结果信息 
+ 此次查询具体的结果信息，与 columns 一一对应 
+ Array 
+ 是 
+
+ ----> 
+ columns 
+ 此次查询返回的具体的数据列名 
+ 此次查询返回的具体的数据列名 
+ Array<String> 
+ 是 
+
+ error_info 
+ 异常信息说明 
+ 当 code 不等于 SUCCESS 时，这里会标明具体的错误信息 
+ JSON 
+ 否 
+
+ 完整的响应报文示例 
+
+ {
+ "code":"SUCCESS",
+	"request_id":"e25ff264b4084a5a9f4b1c2ae7367318",
+ "data":{
+ "data":[
+ "56.0.2924.87",
+ "媒介2",
+ "1027.000",
+ "iPad Air2",
+ "iOS",
+ 1,
+ "5G",
+ 1,
+ "127.0.0.1",
+ "1130.000",
+ "广告词4",
+ "referrer3",
+ "612.000",
+ "path4",
+ "广东省",
+ "url3",
+ "352.000",
+ 19174,
+ "咨询经销商",
+ "中国移动",
+ "9.0",
+ "1663900415616.000",
+ "设备指纹模糊匹配",
+ 1,
+ "host1",
+ "广州市",
+ "476.000",
+ "845.000",
+ "新浪",
+ "Chrome",
+ "2.0",
+ "Android",
+ "544.000",
+ 12,
+ "中国",
+ "广告4",
+ -8565168885686534000,
+ "TJeqKhv3ETtFcvJB",
+ "标题5",
+ "内容1",
+ "Apple",
+ "2022-07-01 03:31:07.904",
+ 1
+ ],
+ "columns":[
+ "$browser_version",
+ "$utm_medium",
+ "$viewport_position",
+ "$dimension_dict_$model",
+ "$os",
+ "$is_first_time",
+ "$network_type",
+ "$wifi",
+ "$ip",
+ "$screen_height",
+ "$utm_term",
+ "$referrer",
+ "$viewport_height",
+ "$url_path",
+ "$province",
+ "$url",
+ "$share_depth",
+ "day",
+ "$element_content",
+ "$carrier",
+ "$os_version",
+ "$receive_time",
+ "$utm_matching_type",
+ "$is_first_day",
+ "$referrer_host",
+ "$city",
+ "$viewport_width",
+ "$screen_width",
+ "$utm_source",
+ "$browser",
+ "$app_version",
+ "$lib",
+ "$event_duration",
+ "event_id",
+ "$country",
+ "$utm_campaign",
+ "user_id",
+ "distinct_id",
+ "$title",
+ "$utm_content",
+ "$dimension_dict_$manufacturer",
+ "time",
+ "$resume_from_background"
+ ]
+ }
+} 
+
+ 接口请求curl示例： 
+
+ curl 'http://localhost:8107/api/v3/analytics/v1/model/sql/query' \
+ -H 'Accept: application/json' \
+ -H 'Accept-Language: zh-CN,zh;q=0.9' \
+ -H 'Content-Type: application/json' \
+ -H 'api-key: #K-Bpei9IdKRPPw4LPycj3a1Pts1wsKPX61' \
+ -H 'Sensors-Language: ZH-CN' \
+ -H 'sensorsdata-project: default' \
+ --data-raw '{"sql":"select * from events where user_id = -8565168885686534080 and day = 19174 and `$receive_time` = 1663900415616 order by `time` ","limit":"1"}' \
+ --compressed \
+ --insecure 
+
+ 分享文章
+
+ 上一个
+ 标签分群导入工具使用文档
+
+ 下一个
+ 事件分析指标类型
+
+ 最近修改: 2026-04-24 
+
+ 神策分析 
+ 新手入门 
+ 神策分析是什么？ 神策分析能做什么 神策分析如何解决问题 神策分析的数据来源 快速接入 
+ 接入前准备 如何正确地标识用户 采集方案设计 基础数据校验 产品使用指南 
+ 基本概念 
+ 行为分析常用名词 神策分析相关名词 基础指标配置说明 属性筛选条件说明 概览 
+ 公共概览 渠道对比组件使用说明 广告预置概览 分析模块 
+ 用户分析 
+ 属性分析 用户群画像分析 RFM 分析 用户细查 用户列表 用户行为序列 用户价值全周期分析 行为分析 
+ 事件分析 
+ 事件分组 对象数组 交易日 筛选首次/末次行为 漏斗分析 留存分析 分布分析 LTV 分析 Session 分析 用户路径分析 间隔分析 归因分析 网页热力分析 App 点击分析 经营分析 
+ 自定义 SQL 
+ 数据表及数据类型 常用函数说明 常见案例 动态参数 指标分析 多维分析 其他 
+ 书签 智能预警分析 
+ 企业群通知 指标平台 
+ 指标管理 维度管理 关系管理 表应用管理 变更设置 渠道追踪 
+ 渠道链接 
+ 推广APP 
+ App通用渠道 App 通用渠道（包含 Deeplink 能力） 推广小程序 
+ 推广微信小程序 推广支付宝小程序 推广网页 
+ 网页通用渠道追踪 渠道追踪常见问题 渠道工具 
+ 三方数据集成 
+ Adjust 数据集成说明 AppsFlyer 数据集成说明 
+ AppsFlyer Push API AppsFlyer Pull API Google Ads 广告集成方案 Meta Ads 广告集成方案 分群 
+ 人群包推送到 Google Ads 人群包推送到 Meta Ads 标签 数据接入 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步（原任务管理） 
+ 批任务创建和管理 流任务创建和管理 Schema 配置 元数据管理 
+ 用户表 
+ 用户表普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 用户关联校验 数据校验 数据权限 用户信息查询 辅助功能 
+ 查询抽样 正则表达式 大数据查询常用功能 掌上神策 报表 
+ 报表概述 报表产品更新日志 业务集市数据接入 
+ 添加分析模型 添加外部数据表 添加自定义查询 业务集市数据准备 
+ 查看业务模型 编辑业务模型 业务模型计算列 业务模型水平拼接 业务模型垂直拼接 业务模型聚合拼接 业务集市模型管理 
+ 业务集市列表管理 业务集市管理中心 制作可视化组件 
+ 组件介绍 制作第一个组件 表格组件应用 图表组件应用 字段设置 图表分析 
+ 同环比 辅助线 时间标注 时间对比分析 累计计算 制作报表 
+ 配置可视化组件 全局筛选配置 报表使用 报表跳转 报表使用动态参数 报表管理 权限配置与资源转交 
+ 角色功能配置 业务模型权限配置 报表权限配置 资源转交 移动端 分享与应用 
+ 订阅报表 订阅业务模型 个人中心 
+ API Key管理 一次性口令 信蜂系统用户手册 诊断工具（开启前端诊断） 账号脱敏 消息通知 审批中心 
+ 对接外部审批流 资源管理 资产治理（新） 平台管理 
+ License自助更新 项目管理 
+ 多项目 项目基本设置 
+ 信息目录管理 分析配置项 切换时区分析 切换分析主体 日期标注 成员与角色 
+ 平台账号管理 成员管理 角色管理 安全设置 
+ MFA 认证 发件箱设置 品牌信息设置 第三方登录设置 配置项设置 触达通道管理 报警管理 操作日志 在线升级 本地埋点项目 资产箱 技术指南 
+ 基础知识 
+ 数据模型 数据格式 标识用户——简易用户关联（IDM 2.0 & IDM 1.0） 标识用户——全域用户关联 新增用户及首日首次标记 预置事件与预置属性 
+ 预置属性总表格 App SDK 预置事件和预置属性 Web JS SDK 预置事件和预置属性 微信小程序 SDK 预置事件和预置属性 快应用 SDK 预置事件和预置属性 WeCode 小程序 SDK 预置事件和预置属性 服务端预置事件及预置属性 渠道相关预置属性 游戏 SDK 预置事件和预置属性 其他小程序预置事件和属性 客户端 SDK 
+ 合规说明 
+ App Store 隐私指引 WWDC23 隐私更新 神策数据 SDK 隐私声明 Privacy Policy IP 解析说明 Android SDK 
+ 集成文档（Android） 基础 API 介绍（Android） 高级功能（Android） 用户关联（Android） 
+ 全域用户关联（Android） 简易用户关联（Android） 渠道追踪与广告（Android） 曝光采集（Android） 常见问题 FAQ（Android） Android SDK 插件说明 Android 分析 SDK 下载 iOS SDK 
+ 集成文档（iOS） 基础 API 介绍（iOS） 高级功能（iOS） 用户关联（iOS） 
+ 全域用户关联（iOS） 简易用户关联（iOS） 渠道追踪与广告（iOS） 曝光采集（iOS） 常见问题 FAQ（iOS） Web JS SDK 
+ 集成文档（Web） 基础 API 介绍（Web） 全埋点和点击图(Web) 高级功能（Web） 安全合规（Web） 用户关联（Web） 
+ 全域用户关联（Web） 简易用户关联（Web） 插件集成 (Web) 多域名打通（Web） 渠道追踪与广告（Web） 曝光采集（Web） 谷歌 AMP（Web） 深度链接 Deeplink（Web） 常见问题 FAQ（Web） 小程序 SDK 
+ 微信小程序 SDK 
+ 集成文档（微信小程序） 基础 API 介绍（微信小程序） 高级功能（微信小程序） 用户关联（微信小程序） 
+ 全域用户关联（微信小程序） 简易用户关联（微信小程序） 微信小程序 SDK 与 H5 打通方案 插件集成（微信小程序） 曝光采集（微信小程序） 快应用 SDK 
+ 用户关联（快应用） 
+ 全域用户关联（IDM 3.0-快应用） 简易用户关联（IDM 2.0-快应用） We 码小程序 SDK 其他小程序 SDK 
+ 基础 API 介绍（其他小程序） 淘宝小程序 SDK 发送 用户关联（其他小程序） 
+ 全域用户关联（其他小程序） 简易用户关联（其他小程序） 集成文档（其他小程序） 高级功能（其他小程序） 跨平台第三方框架 
+ Flutter 
+ 集成文档（Flutter） 
+ 集成文档（Flutter 插件） Flutter 全埋点 基础 API 介绍（Flutter） 用户关联（Flutter） 
+ 全域用户关联（Flutter） 简易用户关联（Flutter） React Native 
+ 集成文档（React Native） 基础 API 介绍（React Native） 用户关联（React Native） 
+ 全域用户关联（React Native） 简易用户关联（React Native） 渠道追踪与广告（React Native） APICloud SDK 
+ 集成文档（APICloud） 基础 API 介绍（APICloud） 用户关联（APICloud） 
+ 全域用户关联（APICloud） 简易用户关联（APICloud） uni-app SDK 
+ 用户关联（uni-app） 
+ 全域用户关联（uni-app） 简易用户关联（uni-app） 集成文档（uni-app-js） 集成文档（uni-app-native） Weex 
+ 集成文档（Weex） 基础 API 介绍（Weex） 用户关联（Weex） 
+ 全域用户关联（IDM3.0） 简易用户关联（IDM 2.0） 游戏 SDK 
+ Cocos2d-x SDK 
+ 集成文档（Cocos2d-x） 基础 API 介绍（Cocos2d-x） 渠道追踪（Cocos2d-x） CocosCreator SDK 
+ 集成文档（CocosCreator SDK） Egret SDK 
+ 集成文档（Egret SDK） LayaAir SDK 
+ 集成文档（LayaAir） 基础 API 介绍（LayaAir） Native 支持 Unity SDK 
+ 集成文档（Unity） 基础 API 介绍（Unity） Unreal Engine SDK 
+ 集成文档（Unreal Engine） 基础 API 介绍（Unreal Engine） 小游戏 SDK 
+ 集成文档（小游戏） C++ SDK 
+ 集成文档（C++） 基础 API 介绍（C++） 用户关联（C++） 
+ 全域用户关联（IDM 3.0-C++） 简易用户关联（IDM 2.0-C++） macOS & tvOS & watchOS SDK 
+ 集成文档（macOS & tvOS & watchOS） 基础 API 介绍（macOS & tvOS & watchOS） App 打通 H5 开启可视化全埋点 
+ Web 可视化全埋点截图插件 DeepLink 功能集成 广告 SDK 
+ iOS SDK 集成（不含 IDFA - 广告 SDK ） iOS SDK 集成（广告 SDK） SDK 功能介绍 
+ 全域用户关联 
+ 预置用户标识清单 曝光采集 三方数据 
+ 接入指南（Android） 接入指南（iOS） HarmonyOS SDK 
+ 全埋点（HarmonyOS） 基础 API 介绍（HarmonyOS） 用户关联（HarmonyOS） 
+ 全域用户关联（HarmonyOS） 简易用户关联（HarmonyOS） 集成文档（HarmonyOS） 高级功能（HarmonyOS） 渠道追踪与广告（HarmonyOS） 曝光采集（HarmonyOS） 更新日志（HarmonyOS SDK ） 服务端 SDK 
+ Java SDK 
+ 集成文档（Java） 基础 API 介绍（Java） 
+ 全域用户关联 API（Java） 简易用户关联 API（Java） Java SDK Demo C SDK 
+ 集成文档（C） 基础 API 介绍（C） C SDK Demo C# SDK 
+ 集成文档（C#） 基础 API 介绍（C#） 
+ 全域用户关联 API（C#） 简易用户关联 API（C#） C# SDK Demo Golang SDK 
+ 集成文档（Golang） 基础 API 介绍（Golang） 
+ 全域用户关联 API（IDM3.0-Golang） 简易用户关联 API（IDM2.0-Golang） PHP SDK 
+ 集成文档（PHP） 基础 API 介绍（PHP） 
+ 全域用户关联 API（IDM3.0-PHP） 简易用户关联 API（IDM2.0-PHP） Python SDK 
+ 集成文档（Python） 基础 API 介绍（Python） 
+ 全域用户关联 API（Python） 简易用户关联 API（Python） Ruby SDK 
+ 集成文档（Ruby） 基础 API 介绍（Ruby） 
+ 简易用户关联 API（IDM2.0-Ruby） Node SDK 
+ 集成文档（Node） 基础 API 介绍（Node） 
+ 简易用户关联 API（IDM2.0-Node） Lua SDK 
+ 集成文档（Lua） 基础 API 介绍（Lua） Lua SDK Demo 数据导入 
+ FormatImporter Integrator Importer LogAgent 
+ LogAgent 场景使用示例 Logstash + Filebeat 数据导入常见问题 数据导出 
+ 使用 JDBC 进行数据访问 订阅实时数据到 Kafka 高级功能 
+ 数据预处理模块 使用 HTTPS 的数据接入 第三方登录 
+ OAuth2.0 登录 LDAP 登录 数据归档 开放平台 
+ OpenAPI 概述 Open API 样例 
+ 认证 导数 
+ 数据导出 
+ 通过OpenApi 导出实体列表 数据导入 
+ 标签分群导入工具使用文档 查询 
+ 事件分析指标类型 归因分析分析模型 筛选函数的类型 聚合时间粒度说明 渠道 OpenAPI 手册 数据校验 
+ 数据校验逻辑 Debug 调试模式 常见问题 
+ 产品问题 数据 & 技术问题 费用 & 服务问题 错误码介绍 错误码原因速查表 行业实践 
+ 功能应用示例 
+ 事件分析功能应用示例 漏斗分析功能应用示例 留存分析功能应用示例 分布分析常见应用场景 间隔分析功能应用示例 用户分群功能应用示例 用户行为序列功能应用示例 自定义查询场景 复杂分析场景 产品更新日志 
+ 3.0.1 三位版本更新日志 3.0.2 三位版本更新日志 3.0.3 三位版本更新日志 3.0.4 三位版本更新日志 支持与服务 
+ 软件更新服务 SRE 运维服务 神策数界 
+ 产品使用指南 
+ 基本概念 分群 标签 
+ 使用 SQL 创建标签 实时标签 标签分群计算调度 用户信息查询 数据权限 数据管理 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 事件数据删除 事件采样率设置 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步(原任务管理） 
+ Schema 配置 元数据管理 
+ 用户表 
+ 普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 数据校验 用户关联校验 常见问题 
+ 产品问题 
+
+ 

@@ -1,0 +1,614 @@
+ 
+
+ 通过OpenApi 导出实体列表-神策分析 帮助中心 | 数据分析使用手册 
+
+ 请输入 
+
+ 神策分析
+ 神策智能运营
+ 神策广告分析
+ 神策数界
+ 神策用户画像
+ 神策A/B测试
+ 开放平台
+
+ 菜单 
+ 首页 神策分析 技术指南 开放平台 Open API 样例 导数 数据导出 通过OpenApi 导出实体列表 
+ 通过OpenApi 导出实体列表
+
+ 套餐版本要求：
+
+ TABLE 导出方式大于等于 SA3.0.1 
+
+ FILE 导出方式大于等于 SA 3.0.2 
+
+ 背景
+
+ 在使用神策数界系统管理实体标签及分群时，如果想让系统标签数据对接到自己的内部系统，在神策数界中，提供了一种交互方式去实现该功能。步骤如下：
+
+ 创建分群 / 标签，并计算完成 
+ 调用实体群包生成 API，生成数据表 或 生成文件 
+ 通过 JDBC 方式导出数据表数据 
+ 调用文件下载接口（套餐 SA 3.0.2+ 开始提供），下载文件 
+
+ 创建实体列表导出任务
+
+ URL | 
+ 请求方法 | 
+ 参数格式 | 
+ 描述 | 
+
+ /api/v3/horizon/v1/entity-list/export-task/create | 
+ POST | 
+ application/json | 
+ 创建实体列表导出任务 | 
+
+ 请求参数
+
+ 字段名
+
+ | 
+ 字段含义 | 
+ 字段类型 | 
+ 是否必填 | 
+ 示例 | 
+
+ attribute_paths | 
+ 需要导出的属性列表 | 
+ array | 
+
+ 是，且必须包含实体主键，
+
+ 可在【数据接入】-【元数据管理】-【用户表】中查看可以导出的属性列表，即需要导出的实体属性列表 (确定表头)
+
+ | 
+
+ ["id", "age", "name","city"],  即导出 id, age, name, city 4 列属性.
+
+ | 
+
+ entity_name | 
+ 实体名称 | 
+ string | 
+ 是 | 
+
+ user
+
+ | 
+
+ export_format | 
+ 输出方式 | 
+ object | 
+ 否 | 
+
+ 非必填，默认情况导出 TABLE
+// 导出到表 默认以该种形式，需要通过 jdbc 的方式拉取数据
+{
+"format_type": "TABLE"
+}
+// 导出到文件，需要通过导出文件的接口拉取数据（ 需要套餐 >= SA 3.0.2 ）
+{
+  "format_type": "FILE"
+}
+
+ 拉取数据的方式见下方详细接口说明.
+
+ | 
+
+ project_id | 
+ 项目 id | 
+ int | 
+ 是 | 
+ 2 | 
+
+ segment_rule_expression
+
+ | 
+ 分群规则 | 
+ object | 
+ 是 | 
+
+ 分群：下面例子的含义为分群为真
+
+ {
+ "type": "EQL_BASED",
+ "eql_segment_rule": {
+ "eql": "user.$SegmentMembership.{分群名} == true"
+ }
+} 
+
+ 标签：下面的含义为标签有值
+
+ {
+ "type": "EQL_BASED",
+ "eql_segment_rule": {
+ "eql": "user.{标签名}.is_not_null()"
+ }
+} 
+
+ // 如果想指定 base_time 即获取某一天的分群 / 标签数据，增加 @{yyyyMMdd} 后缀即可，默认情况下拉取最新一份数据.
+
+ {
+ "type": "EQL_BASED",
+ "eql_segment_rule": {
+ "eql": "user.$SegmentMembership.{分群名}@20240115 == true"
+ }
+} 
+
+ | 
+
+ 请求示例：
+
+ curl "http://{host}:{port}/api/v3/horizon/v1/entity-list/export-task/create" \
+-H "Content-Type: application-json" \
+-H "sensorsdata-project: {projectName}" \
+-H "api-key: {ApiKey}" \
+-d '{
+ "entity_name": "user",
+ "segment_rule_expression": {
+ "type": "EQL_BASED",
+ "eql_segment_rule": {
+ "eql": "user.$SegmentMembership.{分群名} == true"
+ }
+ },
+ "attribute_paths": [
+ "id",
+ "age",
+ "name",
+ "city"
+ ]
+}' 
+ 返回值示例：
+
+ {
+ "code": "SUCCESS",
+ "request_id": "21181032a2d85cc8f8bd403b8d374c19",
+ "data": {
+ "task_id": 1
+ }
+} 
+ 查询实体列表导出任务结果
+
+ 通过该接口可以查询到上一步提交的任务状态。可以通过轮训该接口来判断上一步提交的导出任务是否成功还是失败。
+
+ URL | 
+ 请求方法 | 
+ 参数格式 | 
+ 描述 | 
+
+ /api/v3/horizon/v1/entity-list/export-task/get-status | 
+ GET | 
+ URL-PARAM | 
+ 查询实体列表导出任务 | 
+
+ 请求参数
+
+ 参数名称 | 
+ 描述 | 
+ 类型 | 
+ 是否必填 | 
+ 示例 | 
+
+ task_id | 
+ 任务 id | 
+ int  | 
+ 是  | 
+ 1 | 
+
+ 返回字段
+
+ 字段信息 | 
+ 描述 | 
+ 类型 | 
+ 示例 | 
+
+ project_id | 
+ 项目 id | 
+ int | 
+ 2 | 
+
+ task_id | 
+ 任务 id | 
+ int  | 
+ 1 | 
+
+ status | 
+ 任务状态 | 
+ string | 
+
+ /**
+ * 新建, 还没有被调度执行
+ */
+NEW = 1;
+/**
+ * 运行中
+ */
+RUNNING = 2;
+/**
+ * 成功
+ */
+SUCCESS = 3;
+/**
+ * 失败
+ */
+FAILED = 4; 
+ | 
+
+ success_result 
+ | 
+ 成功信息，主要包含导出的结果信息 | 
+ object | 
+
+ 任务状态成功时，会返回如下信息
+
+ 导出为 TABLE:
+
+ {
+    "table_result": {
+
+         // 数据库名称
+        "database_name": "horizon_workspace_production_2",
+
+         // 表名称
+        "table_name": "user_list_fcakj",
+
+         //  过期时间 超过该时间表会被清理 
+        "expire_time": "2023-07-20T09:50:17.025Z"
+    }
+}
+
+ 导出为 FILE:
+
+ {
+    "file_result": {
+
+         // 文件 token, 即文件导出接口入参中的文件标识
+        "file_token": "2ef3b6c60daa464e8fd87acb9439b90c",
+        "expire_time": "2025-01-17T07:59:59.569Z"
+    }
+}
+
+ 默认情况数据 (TABLE/FILE) 两天后自动过期清理.
+
+ | 
+
+ failed_result | 
+ 失败信息，主要包含失败提示信息 | 
+ object | 
+
+ {
+    "failure_message":"Out Of Memory"
+}
+
+ | 
+
+ 请求示例：
+
+ curl "http://{host}:{port}/api/v3/horizon/v1/entity-list/export-task/get-status?task_id=1" \
+-H "sensorsdata-project: {projectName}" \
+-H "api-key: {ApiKey}" 
+ 任务未执行完成返回json
+
+ {
+ "code": "SUCCESS",
+ "request_id": "21181032a2d85cc8f8bd403b8d374c19",
+ "data": {
+ "project_id": 2,
+ "task_id": 1,
+ "status": "NEW"
+ }
+} 
+ 任务执行失败的返回json
+
+ {
+ "code": "SUCCESS",
+ "request_id": "21181032a2d85cc8f8bd403b8d374c19",
+ "data": {
+ "project_id": 2,
+ "task_id": 1,
+ "status": "FAILED",
+ "failed_result": {
+ "failure_message": "Out Of Memory"
+ }
+ }
+} 
+
+ TABLE 导出方式成功返回json
+
+ {
+ "code": "SUCCESS",
+ "request_id": "21181032a2d85cc8f8bd403b8d374c19",
+ "data": {
+ "project_id": 2,
+ "task_id": 1,
+ "status": "SUCCESS",
+ "success_result": {
+ "table_result": {
+ "database_name": "horizon_workspace_production_2",
+ "table_name": "user_list_fcakj",
+ "expire_time": "2023-07-20T09:50:17.025Z"
+ }
+ }
+ }
+} 
+
+ FILE 导出方式成功返回json（ SA 3.0.2 ） 
+
+ {
+ "code": "SUCCESS",
+ "request_id": "101601209c70239bca3778eb24fe4283",
+ "data": {
+ "project_id": 3,
+ "task_id": 11,
+ "success_result": {
+ "file_result": {
+ "file_token": "2ef3b6c60daa464e8fd87acb9439b90c",
+ "expire_time": "2025-01-17T07:59:59.569Z"
+ }
+ },
+ "status": "SUCCESS"
+ }
+} 
+ 获取导出结果
+
+ TABLE 导出方式
+
+ 通过 jdbc 的形式进行下载，需要注意使用时注意并发，避免给 impala 带来负担.
+
+ 参考文档：神策官网 - 使用 JDBC 进行数据访问 
+
+ 结果样例
+
+ 表中的结果已经经过了权限过滤，但属性脱敏目前暂未实现，参考 数据权限文档 
+ 字段名称即导出时候的属性名称，注意不区分大小写 
+ 请在过期时间内进行结果的获取，超过该时间会被清理 
+ 通过返回结果去获取数据库名称和表名称，不要硬编码 
+
+ 表结构样例
+
+ Query: describe user_list_fcakj
++-----------------+--------------------------+---------+
+| name | type | comment |
++-----------------+--------------------------+---------+
+| id | bigint | |
+| normal_number01 | decimal(19,3,fixedpoint) | |
+| normal_bool01 | bigint | |
+| email | string | |
+| hobbies | string | |
+| register_time | bigint | |
++-----------------+--------------------------+---------+ 
+ 属性值样例
+
+ 数据类型 | 
+ 值（示例） | 
+
+ 字符串 | 
+ abc | 
+
+ 布尔 | 
+ 1 | 
+
+ 数值 | 
+ 100.100 | 
+
+ 日期 | 
+ 1706583289000 | 
+
+ 集合 | 
+ abc\ndef | 
+
+ FILE 导出方式
+
+ 使用文件下载接口获取即可
+
+ URL | 
+ 请求方法 | 
+ 参数格式 | 
+ 描述 | 
+
+ /api/v3/horizon/v1/web/file-storage/download | 
+ GET | 
+ URL-PARAM | 
+ 下载文件 | 
+
+ 请求参数
+
+ 参数名称 | 
+ 数据类型 | 
+ 值（示例） | 
+ 是否必填 | 
+ 描述 | 
+
+ file_token | 
+ string | 
+ 例：21181032a2d85cc8f8bd403b8d374c19 | 
+ true | 
+ 上传文件返回的 file_token. | 
+
+ 请求示例
+
+ curl "http://{host}:{port}/api/v3/horizon/v1/web/file-storage/download?file_token={token信息}" \
+-H "sensorsdata-project: {projectName}" \
+-H "api-key: {ApiKey}" 
+ 返回值就是文件流
+
+ 数据样例
+
+ 由于特殊字符显示问题，"^A" 需要使用 "\1" 解析，为字段 / 列分隔符 
+ 由于特殊字符显示问题，"^C" 需要使用 "\3" 解析，为 list 类型数据分隔符 
+ "\N" 表示无数据 
+
+ 数据类型 | 
+ 值（示例） | 
+
+ 字符串 | 
+ abc | 
+
+ 布尔 | 
+ 1 或 0  | 
+
+ 数值 | 
+ 100.100 | 
+
+ 日期 | 
+ 1706583289000 | 
+
+ 集合 | 
+ abc\3def | 
+
+ 分享文章
+
+ 最近修改: 2025-07-09 
+
+ 神策分析 
+ 新手入门 
+ 神策分析是什么？ 神策分析能做什么 神策分析如何解决问题 神策分析的数据来源 快速接入 
+ 接入前准备 如何正确地标识用户 采集方案设计 基础数据校验 产品使用指南 
+ 基本概念 
+ 行为分析常用名词 神策分析相关名词 基础指标配置说明 属性筛选条件说明 概览 
+ 公共概览 渠道对比组件使用说明 广告预置概览 分析模块 
+ 用户分析 
+ 属性分析 用户群画像分析 RFM 分析 用户细查 用户列表 用户行为序列 用户价值全周期分析 行为分析 
+ 事件分析 
+ 事件分组 对象数组 交易日 筛选首次/末次行为 漏斗分析 留存分析 分布分析 LTV 分析 Session 分析 用户路径分析 间隔分析 归因分析 网页热力分析 App 点击分析 经营分析 
+ 自定义 SQL 
+ 数据表及数据类型 常用函数说明 常见案例 动态参数 指标分析 多维分析 其他 
+ 书签 智能预警分析 
+ 企业群通知 指标平台 
+ 指标管理 维度管理 关系管理 表应用管理 变更设置 渠道追踪 
+ 渠道链接 
+ 推广APP 
+ App通用渠道 App 通用渠道（包含 Deeplink 能力） 推广小程序 
+ 推广微信小程序 推广支付宝小程序 推广网页 
+ 网页通用渠道追踪 渠道追踪常见问题 渠道工具 
+ 三方数据集成 
+ Adjust 数据集成说明 AppsFlyer 数据集成说明 
+ AppsFlyer Push API AppsFlyer Pull API Google Ads 广告集成方案 Meta Ads 广告集成方案 分群 
+ 人群包推送到 Google Ads 人群包推送到 Meta Ads 标签 数据接入 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步（原任务管理） 
+ 批任务创建和管理 流任务创建和管理 Schema 配置 元数据管理 
+ 用户表 
+ 用户表普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 用户关联校验 数据校验 数据权限 用户信息查询 辅助功能 
+ 查询抽样 正则表达式 大数据查询常用功能 掌上神策 报表 
+ 报表概述 报表产品更新日志 业务集市数据接入 
+ 添加分析模型 添加外部数据表 添加自定义查询 业务集市数据准备 
+ 查看业务模型 编辑业务模型 业务模型计算列 业务模型水平拼接 业务模型垂直拼接 业务模型聚合拼接 业务集市模型管理 
+ 业务集市列表管理 业务集市管理中心 制作可视化组件 
+ 组件介绍 制作第一个组件 表格组件应用 图表组件应用 字段设置 图表分析 
+ 同环比 辅助线 时间标注 时间对比分析 累计计算 制作报表 
+ 配置可视化组件 全局筛选配置 报表使用 报表跳转 报表使用动态参数 报表管理 权限配置与资源转交 
+ 角色功能配置 业务模型权限配置 报表权限配置 资源转交 移动端 分享与应用 
+ 订阅报表 订阅业务模型 个人中心 
+ API Key管理 一次性口令 信蜂系统用户手册 诊断工具（开启前端诊断） 账号脱敏 消息通知 审批中心 
+ 对接外部审批流 资源管理 资产治理（新） 平台管理 
+ License自助更新 项目管理 
+ 多项目 项目基本设置 
+ 信息目录管理 分析配置项 切换时区分析 切换分析主体 日期标注 成员与角色 
+ 平台账号管理 成员管理 角色管理 安全设置 
+ MFA 认证 发件箱设置 品牌信息设置 第三方登录设置 配置项设置 触达通道管理 报警管理 操作日志 在线升级 本地埋点项目 资产箱 技术指南 
+ 基础知识 
+ 数据模型 数据格式 标识用户——简易用户关联（IDM 2.0 & IDM 1.0） 标识用户——全域用户关联 新增用户及首日首次标记 预置事件与预置属性 
+ 预置属性总表格 App SDK 预置事件和预置属性 Web JS SDK 预置事件和预置属性 微信小程序 SDK 预置事件和预置属性 快应用 SDK 预置事件和预置属性 WeCode 小程序 SDK 预置事件和预置属性 服务端预置事件及预置属性 渠道相关预置属性 游戏 SDK 预置事件和预置属性 其他小程序预置事件和属性 客户端 SDK 
+ 合规说明 
+ App Store 隐私指引 WWDC23 隐私更新 神策数据 SDK 隐私声明 Privacy Policy IP 解析说明 Android SDK 
+ 集成文档（Android） 基础 API 介绍（Android） 高级功能（Android） 用户关联（Android） 
+ 全域用户关联（Android） 简易用户关联（Android） 渠道追踪与广告（Android） 曝光采集（Android） 常见问题 FAQ（Android） Android SDK 插件说明 Android 分析 SDK 下载 iOS SDK 
+ 集成文档（iOS） 基础 API 介绍（iOS） 高级功能（iOS） 用户关联（iOS） 
+ 全域用户关联（iOS） 简易用户关联（iOS） 渠道追踪与广告（iOS） 曝光采集（iOS） 常见问题 FAQ（iOS） Web JS SDK 
+ 集成文档（Web） 基础 API 介绍（Web） 全埋点和点击图(Web) 高级功能（Web） 安全合规（Web） 用户关联（Web） 
+ 全域用户关联（Web） 简易用户关联（Web） 插件集成 (Web) 多域名打通（Web） 渠道追踪与广告（Web） 曝光采集（Web） 谷歌 AMP（Web） 深度链接 Deeplink（Web） 常见问题 FAQ（Web） 小程序 SDK 
+ 微信小程序 SDK 
+ 集成文档（微信小程序） 基础 API 介绍（微信小程序） 高级功能（微信小程序） 用户关联（微信小程序） 
+ 全域用户关联（微信小程序） 简易用户关联（微信小程序） 微信小程序 SDK 与 H5 打通方案 插件集成（微信小程序） 曝光采集（微信小程序） 快应用 SDK 
+ 用户关联（快应用） 
+ 全域用户关联（IDM 3.0-快应用） 简易用户关联（IDM 2.0-快应用） We 码小程序 SDK 其他小程序 SDK 
+ 基础 API 介绍（其他小程序） 淘宝小程序 SDK 发送 用户关联（其他小程序） 
+ 全域用户关联（其他小程序） 简易用户关联（其他小程序） 集成文档（其他小程序） 高级功能（其他小程序） 跨平台第三方框架 
+ Flutter 
+ 集成文档（Flutter） 
+ 集成文档（Flutter 插件） Flutter 全埋点 基础 API 介绍（Flutter） 用户关联（Flutter） 
+ 全域用户关联（Flutter） 简易用户关联（Flutter） React Native 
+ 集成文档（React Native） 基础 API 介绍（React Native） 用户关联（React Native） 
+ 全域用户关联（React Native） 简易用户关联（React Native） 渠道追踪与广告（React Native） APICloud SDK 
+ 集成文档（APICloud） 基础 API 介绍（APICloud） 用户关联（APICloud） 
+ 全域用户关联（APICloud） 简易用户关联（APICloud） uni-app SDK 
+ 用户关联（uni-app） 
+ 全域用户关联（uni-app） 简易用户关联（uni-app） 集成文档（uni-app-js） 集成文档（uni-app-native） Weex 
+ 集成文档（Weex） 基础 API 介绍（Weex） 用户关联（Weex） 
+ 全域用户关联（IDM3.0） 简易用户关联（IDM 2.0） 游戏 SDK 
+ Cocos2d-x SDK 
+ 集成文档（Cocos2d-x） 基础 API 介绍（Cocos2d-x） 渠道追踪（Cocos2d-x） CocosCreator SDK 
+ 集成文档（CocosCreator SDK） Egret SDK 
+ 集成文档（Egret SDK） LayaAir SDK 
+ 集成文档（LayaAir） 基础 API 介绍（LayaAir） Native 支持 Unity SDK 
+ 集成文档（Unity） 基础 API 介绍（Unity） Unreal Engine SDK 
+ 集成文档（Unreal Engine） 基础 API 介绍（Unreal Engine） 小游戏 SDK 
+ 集成文档（小游戏） C++ SDK 
+ 集成文档（C++） 基础 API 介绍（C++） 用户关联（C++） 
+ 全域用户关联（IDM 3.0-C++） 简易用户关联（IDM 2.0-C++） macOS & tvOS & watchOS SDK 
+ 集成文档（macOS & tvOS & watchOS） 基础 API 介绍（macOS & tvOS & watchOS） App 打通 H5 开启可视化全埋点 
+ Web 可视化全埋点截图插件 DeepLink 功能集成 广告 SDK 
+ iOS SDK 集成（不含 IDFA - 广告 SDK ） iOS SDK 集成（广告 SDK） SDK 功能介绍 
+ 全域用户关联 
+ 预置用户标识清单 曝光采集 三方数据 
+ 接入指南（Android） 接入指南（iOS） HarmonyOS SDK 
+ 全埋点（HarmonyOS） 基础 API 介绍（HarmonyOS） 用户关联（HarmonyOS） 
+ 全域用户关联（HarmonyOS） 简易用户关联（HarmonyOS） 集成文档（HarmonyOS） 高级功能（HarmonyOS） 渠道追踪与广告（HarmonyOS） 曝光采集（HarmonyOS） 更新日志（HarmonyOS SDK ） 服务端 SDK 
+ Java SDK 
+ 集成文档（Java） 基础 API 介绍（Java） 
+ 全域用户关联 API（Java） 简易用户关联 API（Java） Java SDK Demo C SDK 
+ 集成文档（C） 基础 API 介绍（C） C SDK Demo C# SDK 
+ 集成文档（C#） 基础 API 介绍（C#） 
+ 全域用户关联 API（C#） 简易用户关联 API（C#） C# SDK Demo Golang SDK 
+ 集成文档（Golang） 基础 API 介绍（Golang） 
+ 全域用户关联 API（IDM3.0-Golang） 简易用户关联 API（IDM2.0-Golang） PHP SDK 
+ 集成文档（PHP） 基础 API 介绍（PHP） 
+ 全域用户关联 API（IDM3.0-PHP） 简易用户关联 API（IDM2.0-PHP） Python SDK 
+ 集成文档（Python） 基础 API 介绍（Python） 
+ 全域用户关联 API（Python） 简易用户关联 API（Python） Ruby SDK 
+ 集成文档（Ruby） 基础 API 介绍（Ruby） 
+ 简易用户关联 API（IDM2.0-Ruby） Node SDK 
+ 集成文档（Node） 基础 API 介绍（Node） 
+ 简易用户关联 API（IDM2.0-Node） Lua SDK 
+ 集成文档（Lua） 基础 API 介绍（Lua） Lua SDK Demo 数据导入 
+ FormatImporter Integrator Importer LogAgent 
+ LogAgent 场景使用示例 Logstash + Filebeat 数据导入常见问题 数据导出 
+ 使用 JDBC 进行数据访问 订阅实时数据到 Kafka 高级功能 
+ 数据预处理模块 使用 HTTPS 的数据接入 第三方登录 
+ OAuth2.0 登录 LDAP 登录 数据归档 开放平台 
+ OpenAPI 概述 Open API 样例 
+ 认证 导数 
+ 数据导出 
+ 通过OpenApi 导出实体列表 数据导入 
+ 标签分群导入工具使用文档 查询 
+ 事件分析指标类型 归因分析分析模型 筛选函数的类型 聚合时间粒度说明 渠道 OpenAPI 手册 数据校验 
+ 数据校验逻辑 Debug 调试模式 常见问题 
+ 产品问题 数据 & 技术问题 费用 & 服务问题 错误码介绍 错误码原因速查表 行业实践 
+ 功能应用示例 
+ 事件分析功能应用示例 漏斗分析功能应用示例 留存分析功能应用示例 分布分析常见应用场景 间隔分析功能应用示例 用户分群功能应用示例 用户行为序列功能应用示例 自定义查询场景 复杂分析场景 产品更新日志 
+ 3.0.1 三位版本更新日志 3.0.2 三位版本更新日志 3.0.3 三位版本更新日志 3.0.4 三位版本更新日志 支持与服务 
+ 软件更新服务 SRE 运维服务 神策数界 
+ 产品使用指南 
+ 基本概念 分群 标签 
+ 使用 SQL 创建标签 实时标签 标签分群计算调度 用户信息查询 数据权限 数据管理 
+ 埋点数据接入 
+ 数据接入引导 入库校验规则设置 实时导入数据查询 Debug 实时数据查询 事件数据删除 事件采样率设置 通用数据集成 
+ 数据源管理 
+ Hive 数据源 MySQL 数据源 FTP 数据源 ClickHouse 数据源 微信公众号 数据表管理 
+ SQL 语句创建数据表 数据同步(原任务管理） 
+ Schema 配置 元数据管理 
+ 用户表 
+ 普通属性 配置用户关联 事件表 
+ 事件表普通属性 元事件 可视化全埋点事件 
+ App 可视化全埋点 Web 可视化全埋点 虚拟事件 虚拟属性 维度字典 维度表 字段显示配置 数据质量 
+ 埋点数据查询 数据校验 用户关联校验 常见问题 
+ 产品问题 
+
+ 
