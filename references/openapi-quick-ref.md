@@ -9,8 +9,8 @@
 
 | 用途 | URL |
 |---|---|
-| 神策 UI（生产）| `https://user-insight.xa.com/` |
-| 神策 API（生产）| `https://user-insight.xa.com:443/api/v3/...` |
+| 神策 UI（生产）| `https://$SENSORS_API_HOST/` |
+| 神策 API（生产）| `https://$SENSORS_API_HOST:443/api/v3/...` |
 | 神策 API（文档示例）| `http://{host}:8107/api/v3/...`（**本地部署**，XAG内网用域名）|
 | OpenAPI 概述 | `https://manual.sensorsdata.cn/sa/docs/about_open_api/v0300` |
 | OpenAPI 认证 | `https://manual.sensorsdata.cn/sa/docs/open_api_authentication/v0300` |
@@ -40,7 +40,7 @@
 http(s)://{domain}{Base URL}{API URL}
 ```
 
-- `domain` = `user-insight.xa.com`（XAG部署）
+- `domain` = `$SENSORS_API_HOST`（XAG部署）
 - `Base URL` 选项：
   - `/api/v3/portal/v2` — 主门户（事件/属性/查询/管理）
   - `/api/v3/analytics/v1` — 分析模块（project/list 等）
@@ -71,7 +71,7 @@ http(s)://{domain}{Base URL}{API URL}
 
 ### 5.1 列事件（GET）
 ```bash
-curl -sX GET "https://user-insight.xa.com:443/api/v3/portal/v2/management/event/list" \
+curl -sX GET "https://$SENSORS_API_HOST:443/api/v3/portal/v2/management/event/list" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
   -H "api-key: $(cat ~/.hermes/credentials/sensors.txt)" \
@@ -80,7 +80,7 @@ curl -sX GET "https://user-insight.xa.com:443/api/v3/portal/v2/management/event/
 
 ### 5.2 查 SQL 数据（POST）
 ```bash
-curl -sX POST "https://user-insight.xa.com:443/api/v3/portal/v2/query/data" \
+curl -sX POST "https://$SENSORS_API_HOST:443/api/v3/portal/v2/query/data" \
   -H "Content-Type: application/json" \
   -H "api-key: $(cat ~/.hermes/credentials/sensors.txt)" \
   -H "sensorsdata-project: production" \
@@ -111,8 +111,8 @@ curl ... \
 ## 7. License 状态探测（根因排查）
 
 ```bash
-# 从 user-insight.xa.com 根 HTML 挖 license
-curl -sk https://user-insight.xa.com:443/ | grep -oP 'license\{[^}]+\}' | head -1
+# 从 $SENSORS_API_HOST 根 HTML 挖 license
+curl -sk https://$SENSORS_API_HOST:443/ | grep -oP 'license\{[^}]+\}' | head -1
 ```
 
 **关键字段**：
@@ -150,7 +150,7 @@ HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json",
 }
-BASE = "https://user-insight.xa.com:443"
+BASE = "https://$SENSORS_API_HOST:443"
 
 # 列事件
 r = requests.get(f"{BASE}/api/v3/portal/v2/management/event/list", headers=HEADERS, timeout=30)

@@ -187,7 +187,7 @@ ORDER BY date;
 `fail_text` 中括号内的 `0x` 开头十六进制码是固件级错误码。查询方式：
 
 1. **事件错误码 API**（见 event-error-sync skill）：
-   - `GET https://release-platform.xa.com/event_manage_admin/v2/view/?product_uuid=<UUID>&lang=zh`
+   - `GET https://$RELEASE_PLATFORM_HOST/event_manage_admin/v2/view/?product_uuid=<UUID>&lang=zh`
    - 植保系列 product_uuid = `5639054e-77a7-4e73-ab26-f7fd5153fc25`（22模块561条）
    - 航测系列 product_uuid = `14e920af-34e5-4fb3-904f-15425251a9d8`
    - ⚠️ 需将十六进制转十进制查询（如 `0x0F350000` → `255131648`）

@@ -139,7 +139,7 @@ LIMIT 10
 ⚠️ 同一 `fail_reason` 可能有多套 `fail_text`（中文新旧格式 + 多语言），按 `fail_reason` 聚合更可靠。
 
 对于 `0x` 开头的十六进制错误码（如 `0x80411007`），可用事件错误码 API 查含义：
-- `GET https://release-platform.xa.com/event_manage_admin/v2/view/?product_uuid=<UUID>&lang=zh`
+- `GET https://$RELEASE_PLATFORM_HOST/event_manage_admin/v2/view/?product_uuid=<UUID>&lang=zh`
 - 植保系列 product_uuid = `5639054e-77a7-4e73-ab26-f7fd5153fc25`
 - 需将十六进制转十进制查询
 - 详见 event-error-sync skill

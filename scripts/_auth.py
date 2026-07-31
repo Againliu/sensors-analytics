@@ -18,7 +18,7 @@ import requests
 # ═══════════════════════════════════════════════════
 # 基础配置
 # ═══════════════════════════════════════════════════
-BASE_URL = "https://user-insight.xa.com:443"
+BASE_URL = "https://$SENSORS_API_HOST:443"
 DEFAULT_PROJECT = "production"
 
 # ═══════════════════════════════════════════════════

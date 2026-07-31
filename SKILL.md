@@ -1,6 +1,6 @@
 ---
 name: sensors-analytics
-description: 神策分析 OpenAPI 全量接入（77 端点 100% 覆盖）- XAG AgriService用户行为埋点分析。封装 user-insight.xa.com 的 OpenAPI 调用，支持 19 个分析模型（事件/漏斗/留存/分布/间隔/归因/LTV/Session/路径/属性分析）、自定义 SQL、Dashboard 概览、业务集市、智能预警、事件/属性元数据、渠道追踪 CRUD、Schema 管理、目录服务、标签/分群/导出。
+description: 神策分析 OpenAPI 全量接入（77 端点 100% 覆盖）- XAG AgriService用户行为埋点分析。封装 $SENSORS_API_HOST 的 OpenAPI 调用，支持 19 个分析模型（事件/漏斗/留存/分布/间隔/归因/LTV/Session/路径/属性分析）、自定义 SQL、Dashboard 概览、业务集市、智能预警、事件/属性元数据、渠道追踪 CRUD、Schema 管理、目录服务、标签/分群/导出。
 metadata:
   version: "1.4.1"
   created: "2026-06-02"
@@ -35,7 +35,7 @@ headers = {
 }
 ```
 
-- **Base URL**: `https://user-insight.xa.com:443`（只有 443 HTTPS 通，其他端口都不行）
+- **Base URL**: `https://$SENSORS_API_HOST:443`（只有 443 HTTPS 通，其他端口都不行）
 - **项目名**: `production`（中文显示"正式项目"，project_id=2）
 - **凭据路径**: `~/.hermes/credentials/sensors.txt`（chmod 600）
 - **API-Key 权限 = 创建者用户权限**
@@ -45,7 +45,7 @@ headers = {
 ## 二、URL 结构
 
 ```
-https://user-insight.xa.com:443/api/v3/{产品}/{接口版本}/{端点}
+https://$SENSORS_API_HOST:443/api/v3/{产品}/{接口版本}/{端点}
 ```
 
 | 前缀 | 用途 |
@@ -458,7 +458,7 @@ result = async_task_wait(task_id)  # 默认最多 300s，每 5s 查一次
 ### 2. 只有 443 HTTPS 通
 **症状**: 连接超时
 **原因**: 8107/8006/8086/8088 端口都不开放
-**修复**: 用 `https://user-insight.xa.com:443`
+**修复**: 用 `https://$SENSORS_API_HOST:443`
 
 ### 3. Schema event/list 是 POST 不是 GET
 **症状**: "Request method 'GET' is not supported"
@@ -562,7 +562,7 @@ SELECT $device_model, count(*) as pv FROM events WHERE event = '$AppClick' AND d
 **注意**: WHERE + IS NOT NULL 也可能触发 GRPC 错误（如 `$province IS NOT NULL`），视具体属性而定。遇到 GRPC 错误优先检查是否有 HAVING / IS NOT NULL。
 
 ### 17. API 数据与界面数据一致性已验证（2026-06-03）
-用 liujian1@xa.com 账号登录神策界面（自定义 SQL 页面），与 API 全面对比：
+用 user@example.com 账号登录神策界面（自定义 SQL 页面），与 API 全面对比：
 
 **简单查询**：
 - DAU（2026-06-02）: API 25134 = 界面 25134 ✅
