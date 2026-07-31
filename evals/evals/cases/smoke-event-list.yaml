@@ -1,0 +1,27 @@
+id: smoke-event-list
+title: 查询事件列表应返回有效事件
+description: 验证通过 sensors-analytics skill 的事件元数据 API 能正确获取事件列表
+
+tags: [smoke, event-meta]
+
+input:
+  prompt: |
+    查询神策分析中的所有事件列表，列出事件名和显示名。
+
+expect:
+  exit_code: 0
+  must_contain:
+    - "$AppClick"
+  must_not_contain:
+    - "I cannot"
+    - "无法"
+    - "error"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["$AppClick"]
+        any: ["事件", "event"]
+        not: ["fabricat", "编造"]
+    - exit_code: 0

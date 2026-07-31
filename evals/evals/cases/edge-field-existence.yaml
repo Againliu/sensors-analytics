@@ -1,0 +1,31 @@
+id: edge-field-existence
+title: 查询前应验证字段存在于目标事件
+description: |
+  高德文章「字段存在性验证」实践：在写 SQL 前应先 DESC 或查
+  event/field/list 确认字段存在。回归 Pitfall 34：drone_sn 只在
+  auto_operation_task_start 中存在，operation_auto_work_start 无此字段。
+
+tags: [edge, field-validation, gaode-desc]
+
+input:
+  prompt: |
+    查询最近 7 天各飞行的作业任务，按飞机序列号分组统计。
+    需要先确认哪个事件有 drone_sn 字段再查询。
+
+expect:
+  exit_code: 0
+  must_contain:
+    - "drone_sn"
+  must_not_contain:
+    - "I cannot"
+    - "无法"
+    - "fabricat"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["drone_sn"]
+        any: ["auto_operation_task_start", "飞机序列号", "drone", "serial"]
+        not: ["编造", "fabricat", "operation_auto_work_start.*drone_sn"]
+    - exit_code: 0

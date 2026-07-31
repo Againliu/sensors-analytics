@@ -1,0 +1,29 @@
+id: edge-ndjson-parse
+title: NDJSON 多列 GROUP BY 查询应正确解析
+description: |
+  回归 7/29 bug：NDJSON 返回多列时解析错位，每行用了第一行的 columns 定义。
+  验证 skill 现在能正确解析多列 GROUP BY 结果。
+
+tags: [edge, regression, ndjson]
+
+input:
+  prompt: |
+    用 SQL 查询神策分析中最近 7 天按 route_type 和 device_model 两列分组的作业次数。
+
+expect:
+  exit_code: 0
+  must_not_contain:
+    - "KeyError"
+    - "IndexError"
+    - "column mismatch"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["route_type", "device_model", "分组", "group"]
+        not: ["KeyError", "IndexError", "column mismatch", "错位"]
+    - exit_code: 0
+  failure:
+    - output_contains:
+        any: ["KeyError", "IndexError", "column mismatch", "错位"]

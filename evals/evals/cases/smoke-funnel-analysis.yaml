@@ -1,0 +1,29 @@
+id: smoke-funnel-analysis
+title: 漏斗分析应返回各步骤转化率
+description: 验证通过 sensors-analytics skill 的漏斗分析 API 能正确获取转化数据
+
+tags: [smoke, funnel]
+
+input:
+  prompt: |
+    查询最近 30 天的注册转化漏斗：浏览首页 → 注册页面 → 完成注册。
+
+constraints:
+  timeout_seconds: 480
+  max_turns: 20
+
+expect:
+  exit_code: 0
+  must_not_contain:
+    - "I cannot"
+    - "无法"
+    - "EngineOverloadedError"
+    - "429"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["步骤", "step", "funnel", "转化", "conversion", "流失", "率", "$AppStart", "user_register", "$AppViewScreen"]
+        not: ["编造", "fabricat", "EngineOverloadedError"]
+    - exit_code: 0

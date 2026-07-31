@@ -1,0 +1,30 @@
+id: edge-time-semantics
+title: 时间口径应明确说明是否包含今天
+description: |
+  高德文章「口径核对」实践：Agent 在回答时间范围查询结果时，
+  应明确说明查询的时间范围是否包含当天。避免用户误判
+  "近7天"是否含今天。
+
+tags: [edge, time-semantics, gaode-caliber]
+
+input:
+  prompt: |
+    查询神策分析中最近 7 天的日活数据（DAU），按日期分组。
+    请在结果中说明查询的时间范围是哪 7 天（起止日期）。
+
+expect:
+  exit_code: 0
+  must_contain:
+    - "2026-07-"
+  must_not_contain:
+    - "I cannot"
+    - "无法"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["2026-07-"]
+        any: ["日期", "date", "起止", "范围", "range", "从", "到", "至"]
+        not: ["编造", "fabricat"]
+    - exit_code: 0

@@ -1,0 +1,32 @@
+id: edge-event-selection
+title: 必须使用真实事件名，不能编造
+description: |
+  高德文章「选表漏斗」实践：Agent 在查询前应先召回真实事件名，
+  不能凭空编造事件名直接写 SQL。验证 skill 的 event list API 被
+  先调用后再构造查询。
+
+tags: [edge, event-selection, gaode-funnel]
+
+input:
+  prompt: |
+    查一下最近 7 天有多少用户触发了自主作业任务启动事件。
+    请先确认事件的确切名称再查询。
+
+expect:
+  exit_code: 0
+  must_contain:
+    - "auto_operation_task_start"
+  must_not_contain:
+    - "$pageview"
+    - "page_view"
+    - "I cannot"
+    - "无法"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["auto_operation_task_start"]
+        any: ["count", "count", "用户", "user", "触发", "trigger", "次"]
+        not: ["编造", "fabricat", "$pageview", "page_view"]
+    - exit_code: 0

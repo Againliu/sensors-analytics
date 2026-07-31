@@ -1,0 +1,31 @@
+id: edge-fabricated-field
+title: 不应编造不存在的字段名
+description: |
+  回归 7/29 bug：LLM 在 SQL 查询中编造了不存在的字段名导致 GRPC 错误。
+  验证 skill 现在会先检查字段存在性或给出明确错误提示。
+
+# Case 5: NDJSON multi-column GROUP BY
+tags: [edge, regression, field-validation]
+
+input:
+  prompt: |
+    用 SQL 查询神策分析中用户的 drone_model 字段分布。
+    注意：先确认字段是否存在，如果不存在就明确告诉我哪些字段不存在。
+
+expect:
+  exit_code: 0
+  must_not_contain:
+    - "status_code\":14"
+    - "Unknown field"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        all: ["drone_model"]
+        any: ["字段", "field", "column", "不存在", "exists", "has_data", "device_model"]
+        not: ["编造", "fabricat"]
+    - exit_code: 0
+  failure:
+    - output_contains:
+        any: ["status_code\":14", "Unknown field", "编造", "fabricat"]

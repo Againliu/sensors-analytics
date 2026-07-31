@@ -1,0 +1,44 @@
+schema_version: v1alpha1
+
+environment:
+  type: none
+
+engine:
+  name: custom
+  model:
+    provider: openai
+    name: kimi/kimi-k3
+    base_url: ""
+  custom:
+    transport: local
+    response_format: text
+    timeout_seconds: 480
+    local:
+      command: /usr/bin/python3
+      args:
+        - /root/.local/bin/skill-up-harness.py
+        - ${input_file}
+        - ${output_file}
+      cwd: ${workspace}
+
+cases:
+  files:
+    - evals/cases/smoke-event-list.yaml
+    - evals/cases/smoke-sql-query.yaml
+    - evals/cases/smoke-funnel-analysis.yaml
+    - evals/cases/edge-fabricated-field.yaml
+    - evals/cases/edge-ndjson-parse.yaml
+    - evals/cases/edge-event-selection.yaml
+    - evals/cases/edge-field-existence.yaml
+    - evals/cases/edge-time-semantics.yaml
+  defaults:
+    timeout_seconds: 480
+    max_turns: 20
+  parallelism: 1
+
+benchmark:
+  enabled: false
+
+report:
+  formats: [json, html]
+  artifacts: [transcript]

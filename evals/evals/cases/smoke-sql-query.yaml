@@ -1,0 +1,24 @@
+id: smoke-sql-query
+title: 自定义 SQL 查询应返回数据行
+description: 验证通过 sensors-analytics skill 的 sql_query 函数能正确执行 SQL 并返回结果
+
+tags: [smoke, sql]
+
+input:
+  prompt: |
+    用 SQL 查询神策分析中最近 7 天的日活数据（DAU），按日期分组。
+
+expect:
+  exit_code: 0
+  must_not_contain:
+    - "I cannot"
+    - "无法"
+    - "fabricat"
+
+judge:
+  type: rule_based
+  success:
+    - output_contains:
+        any: ["date", "日期", "day", "daily"]
+        not: ["编造", "fabricat", "invented"]
+    - exit_code: 0
