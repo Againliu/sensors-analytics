@@ -1,43 +1,26 @@
 ---
 name: sensors-analytics
-description: 神策分析 OpenAPI 全量接入（77 端点 100% 覆盖）- 极飞农服用户行为埋点分析。封装 user-insight.xa.com
-  的 OpenAPI 调用，支持 19 个分析模型（事件/漏斗/留存/分布/间隔/归因/LTV/Session/路径/属性分析）、自定义 SQL、Dashboard
-  概览、业务集市、智能预警、事件/属性元数据、渠道追踪 CRUD、Schema 管理、目录服务、标签/分群/导出。
-version: 1.2.0
-created: 2026-06-02
-updated: 2026-06-03
-status: production-ready
+description: 神策分析 OpenAPI 全量接入（77 端点 100% 覆盖）- XAG AgriService用户行为埋点分析。封装 user-insight.xa.com 的 OpenAPI 调用，支持 19 个分析模型（事件/漏斗/留存/分布/间隔/归因/LTV/Session/路径/属性分析）、自定义 SQL、Dashboard 概览、业务集市、智能预警、事件/属性元数据、渠道追踪 CRUD、Schema 管理、目录服务、标签/分群/导出。
+metadata:
+  version: "1.4.1"
+  created: "2026-06-02"
+  updated: "2026-07-28"
+  status: production-ready
 ---
-
 
 # 神策分析 OpenAPI Skill（sensors-analytics）
 
-> 极飞农服用户行为埋点查询（神策分析）OpenAPI 接入。
-
-## 安装
-
-### 1. 复制 Skill
-```bash
-cp -r sensors-analytics/ /path/to/your/agent/skills/
-```
-
-### 2. 安装依赖
-无额外依赖。
-
-### 3. 配置环境变量
-无需额外环境变量。
-
-### 4. 验证
-查看 SKILL.md 中的使用说明，按文档操作即可。
+> XAG AgriService用户行为埋点查询（神策分析）OpenAPI 接入。
 
 ## 触发场景
 
 当用户要求以下操作时加载此 skill：
-- 查极飞农服 App 的用户行为数据（PV/UV/留存/漏斗等）
+- 查XAG AgriService App 的用户行为数据（PV/UV/留存/漏斗等）
 - 查神策分析平台的事件列表、属性列表
 - 用 SQL 查询神策数据
 - 导出神策标签/分群数据
 - 管理事件/属性的元数据（可见性等）
+- 查某台飞机（drone_sn）的作业状态、失败记录、错误码含义
 
 ---
 
@@ -245,6 +228,26 @@ python3 scripts/query_segmentation.py --event 'user_login' --from 2026-06-01 --t
 **aggregator 可选值**: pv（次数）/ uv（人数）/ sum / avg / max / min / count
 **unit 可选值**: HOUR / DAY / WEEK / MONTH
 
+### 4.2b user_journey.py / user_summary.py — 单用户行为旅程（用户ID查询）
+
+当运营/客服/产品给出一个 distinct_id（32位大写HEX）问"这个用户最近在干什么、卡在哪一步"时用：
+
+```bash
+# 中文人读摘要（默认90天）
+python3 scripts/user_summary.py D74B8CE70961B4ADDAC9635079442350
+python3 scripts/user_summary.py D74B8CE70961B4ADDAC9635079442350 30  # 最近30天
+
+# 完整JSON（含时间线/分阶段/session切分）
+python3 scripts/user_journey.py D74B8CE70961B4ADDAC9635079442350 90 > /tmp/user.json
+```
+
+输出包含：设备矩阵、事件汇总、关键行为计数（注册/绑机/升级/测地/作业/客服/重登/相机）、
+自动按30分钟 idle 切 session 并标注阶段、用户分层判断（故障态/流失风险/真实作业用户）。
+
+> 详见 [references/user-journey-recipes.md](references/user-journey-recipes.md)（事件语义表、screen 语义表、用户分层规则、典型画像案例、常用 SQL）。
+> 详见 [references/drone-operation-analysis.md](references/drone-operation-analysis.md)（飞机维度查询：按 drone_sn 查作业状态/失败分析/错误码查询/历史趋势）。
+> 详见 [references/error-code-analysis.md](references/error-code-analysis.md)（跨事件错误码聚合排行：哪些事件有 fail_reason 字段、Top N 错误码统计、拆分查询技巧）。
+
 ### 4.3 query_sql.py — 自定义 SQL
 
 ```bash
@@ -387,13 +390,13 @@ result = async_task_wait(task_id)  # 默认最多 300s，每 5s 查一次
 | `survey_use_mapping_device` | 测地/地块管理-选择/切换测绘设备 | ✅ |
 | `operation_lift_mode` | 运输作业-执行自动飞行 | ✅ |
 | `auto_operation_task_start` | 自主作业任务启动 | ✅ |
-| `operation_auto_work_start` | operation_auto_work_start | ✅ |
+| `operation_auto_work_start` | 实际作业开始（无 drone_sn，需通过 auto_task_id 关联） | ✅ |
 
 ---
 
 ## 十、常用查询配方
 
-> 详见 [references/common-query-recipes.md](references/common-query-recipes.md)：DAU计算、版本分布、功能渗透率、布尔属性 GROUP BY 替代 WHERE、横竖屏设备分布等。
+> 详见 [references/common-query-recipes.md](references/common-query-recipes.md)：DAU计算、版本分布、功能渗透率、布尔属性 GROUP BY 替代 WHERE、横竖屏设备分布、跨事件错误码排行（报错次数/设备数/用户数/提示文案三查询合并）等。
 > 详见 [references/device-classification.md](references/device-classification.md)：SRC遥控器型号、平板vs手机分类方法、横屏使用分析。
 > 详见 [references/user-login-event.md](references/user-login-event.md)：user_login 事件字段值域、错误码速查、登录分析常用 SQL。
 > 详见 [references/official-api-inventory.md](references/official-api-inventory.md)：官方 Swagger 全量端点清单（63个），含覆盖率审计结果和未覆盖端点列表。
@@ -442,6 +445,16 @@ result = async_task_wait(task_id)  # 默认最多 300s，每 5s 查一次
 **原因**: 没传 `sensorsdata-project` header
 **修复**: 固定传 `"sensorsdata-project": "production"`
 
+### 1.1 别信"接口权限不够"的二手报告，先实测 SQL 端点（2026-06-23 踩坑）
+**症状**: 同事反馈"query/data 和 analytics/v1 都 401 UNAUTHORIZED，Key 没数据查询权限"
+**真相**: 实测 SQL 查询端点（`model/sql/query`）完全正常返回数据；"401"实际是**参数错误**（400 参数校验异常）或**事件名错误**（如 `$pageview` 事件不存在），被误判成权限问题。
+**踩坑经过**: segmentation 端点返回 `code=SA-D-32-19 "$pageview 不存在或失效"`，HTTP 状态仍是 200，不是 401；retention/addiction/session 的 400 也是参数缺失或服务端内部错误（500），跟权限无关。
+**修复/原则**:
+- 别人告诉你"Key 没权限"时，**不要直接采信**，先用 SQL 端点跑一个最简单的 DAU 查询验证：`SELECT count(distinct distinct_id) as dau FROM events WHERE date = 'YYYY-MM-DD'`
+- SQL 端点是权限真相的最快验证——只要 SQL 通，Key 就有数据查询权限，其他端点报"401"大概率是参数问题
+- 真 401 会有明确的 HTTP 401 状态码 + "UNAUTHORIZED" 消息；HTTP 200 但 code!=SUCCESS 是业务错误，不是权限
+- 分析模型端点（segmentation/funnel/retention 等）参数结构复杂，参数错误很常见，先用已知事件（如 `$AppClick`、`user_login`）测通最小 payload，再加复杂条件
+
 ### 2. 只有 443 HTTPS 通
 **症状**: 连接超时
 **原因**: 8107/8006/8086/8088 端口都不开放
@@ -468,6 +481,15 @@ result = async_task_wait(task_id)  # 默认最多 300s，每 5s 查一次
 **症状**: JSON 解析失败
 **原因**: 多行结果不是一个 JSON 数组，而是每行一个 JSON 对象拼接
 **修复**: query_sql.py 已内置 streaming JSON parser，不需要额外处理
+
+### 7. SQL 多行结果是流式 NDJSON，不是单个 JSON
+**症状**: `r.json()` / `json.loads()` 抛 `Extra data: line 2 column 1 (char 157)`
+**原因**: 神策 SQL 端点返回多行结果时，是 **NDJSON（每行一个 JSON 对象）**，HTTP content-type 仍是 application/json，但 body 里有多行 JSON 拼接。`requests.Response.json()` 只能解析第一个对象。
+**修复**:
+- **新代码**: 用 `_auth.py` 提供的 `sql_query(sql, limit)` helper，自动 NDJSON 解析，返回 `(columns, [row_dict, ...])`
+- **手动解析**: `parse_response(r, expect_stream=True)` 返回 list[dict]
+- 不要用 `r.json()` 直接解析 SQL 响应，结果行数 >1 必报错
+- 注意：`count(*)` 返回的是 float，显示时要 `int()` 转换
 
 ### 8. SQL 中特殊属性名要转义
 **症状**: SQL 解析错误
@@ -697,6 +719,38 @@ detail = api_get(EP_DASH_DETAIL, params={"dashboard_id": "xxx"})
 
 **原则**: 能用专用模型就不用 SQL。专用模型有更好的过滤、分组、时间窗口支持，且结果格式更结构化。SQL 是最后兜底方案。
 
+### 26. SQL 时间/字符串/算术函数：只有极少数可用，其余全触发 GRPC
+**症状**: `SUBSTR(date, 1, 7)` / `SUBSTR(time, 1, 13)` / `time - time % 3600000` / `CEIL(count(*)/100)*100` / `to_time(time)` 全部报 "GRPC 服务发生未知异常"
+**真相**: Sensors SQL 引擎只支持极少数内置函数（`HOUR(time)`、`date_sub`、`current_date` 等），**几乎所有字符串处理函数（SUBSTR/CONCAT/LENGTH）和算术表达式（CEIL/FLOOR/除法运算在 GROUP BY 里）都不支持**。
+**修复**: 能用 date 字段直接 GROUP BY 就不要做字符串截取。月度统计按日 GROUP BY 后客户端聚合，不要做 `SUBSTR(date,1,7)`。
+```sql
+-- ❌ 全部 GRPC
+SELECT SUBSTR(date, 1, 7) as month, count(*) FROM events WHERE ... GROUP BY month
+SELECT CEIL(count(*)/100)*100 as bucket, count(*) FROM events WHERE ... GROUP BY bucket
+SELECT SUBSTR(time, 1, 13) as hour, count(*) FROM events WHERE ... GROUP BY SUBSTR(time, 1, 13)
+
+-- ✅ 正常（按日 GROUP BY 后 Python 按月聚合）
+SELECT date, count(*) FROM events WHERE ... GROUP BY date
+-- Python: collections.defaultdict 按月累加
+```
+
+### 27. 多 WHERE 条件叠加容易触发 GRPC，尽量精简
+**症状**: 两个 WHERE 条件单独用都没问题，合在一起就报 GRPC 错误
+**示例**: `firmware_update_result != '成功' AND fail_text LIKE '%0x010000E1%'` → GRPC
+**修复**: 去掉冗余条件。`fail_text LIKE` 已经隐含失败，不需要再加 `firmware_update_result != '成功'`
+```sql
+-- ❌ GRPC（两个条件叠加）
+WHERE firmware_update_result != '成功' AND fail_text LIKE '%0x010000E1%'
+-- ✅ 正常（单条件已足够）
+WHERE fail_text LIKE '%0x010000E1%'
+```
+**原则**: 能用一个条件过滤就用一个，尤其 SELECT 列数较多时。如果必须多条件，先试单个条件确认可用，再逐步加回。
+
+### 28. SELECT 列数过多 + WHERE 复杂 = GRPC 高风险
+**症状**: 选 8+ 列 + 多 WHERE 条件 → GRPC 错误；减少列数后正常
+**修复**: 先查核心字段，需要补充信息时再单独查
+**经验**: Sensors SQL 对宽表 + 复杂过滤组合不稳定，分批查比一次性全选更可靠
+
 ### 25. 复杂 SQL 的最佳实践
 1. **多维分组优先 SQL**: 3+ 维度的 GROUP BY，segmentation API 不支持，SQL 可以
 2. **CASE WHEN 做多事件对比**: 一条 SQL 同时查多个事件的指标，比分别调 segmentation 快
@@ -707,7 +761,258 @@ detail = api_get(EP_DASH_DETAIL, params={"dashboard_id": "xxx"})
 
 ---
 
+### 29. 别人报"401权限不足"时不要直接信，先实测区分错误类型
+**场景**: 同事说某个 API Key 权限不全、某接口返回401
+**坑点**: 很多"401"其实是参数错误(400)、事件名写错、headers 漏传、服务端异常(500)，被误判成权限问题。2026-06-23小明说query/data和analytics/v1都是401，实测SQL查询完全通，segmentation是参数/事件名错误，funnel/interval也能调通，没有一个真正401。
+**修复/原则**:
+- 拿到"权限问题"反馈，第一件事自己实测，每个接口打一次真实请求
+- 严格区分三类错误：
+  - HTTP 401 + body含"UNAUTHORIZED"/"没有权限" → 真权限问题
+  - HTTP 200 + code=COMMON-D-27-1 "参数校验异常" → 参数错了，不是权限
+  - HTTP 500/INTERNAL_SERVER_ERROR → 服务端bug，不是权限
+  - code=SA-D-32-19 "事件不存在或失效" → 事件名写错，不是权限
+- 测权限边界时，先用最小payload（只传必填参数），排除参数干扰
+**经验**: 神策Key权限 = 创建者用户权限。真遇到401，需要神策管理员给创建Key的账号补角色；但在那之前先排除参数/headers/事件名问题。
+
+### 30. 事件名不能猜，必须从元数据接口取
+**症状**: segmentation传"$pageview"返回"事件不存在或失效"
+**原因**: 不同神策项目预置事件不同，$pageview 在当前XAG项目里确实不存在，真实事件列表要通过 `EP_EVENTMETA_ALL` 实时查询，不能凭其他项目经验猜。
+**修复**: 任何用到事件名的查询，先查 events.json 缓存或调 event-meta 接口确认。当前项目已知事件见第七节（24个），没有 $pageview/$AppStart，常见的是 $AppClick/$AppStartPassively/$AppEnd/user_login。
+
+### 31. 按用户 ID 查"最近有没有登录/启动"时，时间窗口要放宽 + 双字段匹配
+**场景**: 用户丢过来一个 32 位大写 HEX（形如 `D74B8CE70961B4ADDAC9635079442350`）问"这个用户最近几天有没有登录或启动 App"。
+**坑点**:
+- 默认先查 7 天/14 天很容易 **0 结果**，实际该用户最后活跃可能在 30+ 天前；
+- 只查 `distinct_id` 可能漏掉——在神策里，**登录后的 distinct_id 会被切换为 `$identity_login_id`**，两者值可能相同也可能不同，保险起见两个字段都要查。
+**正确做法**（先宽查再下结论）：
+```sql
+-- 第一步：180 天宽窗口查最近活跃时间（同时匹配 distinct_id 和 $identity_login_id）
+SELECT max(date) AS last_date,
+       min(date) AS first_date,
+       count(*)   AS total_events,
+       count(distinct date) AS active_days
+FROM events
+WHERE (distinct_id = '{ID}' OR "$identity_login_id" = '{ID}')
+  AND date >= date_sub(current_date(), 180)
+LIMIT 10;
+
+-- 第二步：确认最后活跃在近 N 天内 → 再拉明细
+SELECT time, event, $app_version, $os, $model, $province, $city
+FROM events
+WHERE (distinct_id = '{ID}' OR "$identity_login_id" = '{ID}')
+  AND date >= '{last_date - 1}'
+ORDER BY time DESC
+LIMIT 200;
+```
+**返回口径**: 告诉用户"最后活跃 YYYY-MM-DD，距今 N 天，近 N 天无登录/启动记录"，**不要在 7 天 0 结果时直接说"没有这个用户"或"没登录"**。
+
+### 32. users 表多 WHERE 条件叠加容易触发 GRPC，查单个用户用 OR 拆单字段
+**症状**: `WHERE id='X' OR user_id='X' OR $device_id='X' OR $identity_anonymous_id='X'` 直接报 `COMMON-R-131-1 GRPC 服务发生未知异常`。
+**修复**: 一次查一个字段（distinct_id、$identity_login_id 用 events 表最稳），或者在 events 表里用 OR 查，不要在 users 表一次性 OR 4 个字段。
+
+### 33. 32 位大写 HEX 是本项目 distinct_id 的标准格式
+本项目（XAG AgriService production）distinct_id 形如 `32D7D85CC3C1D65E9C6602724FF9997E`（32 字符大写 hex），`$device_id` / `$identity_anonymous_id` 则通常是**短小写**（如 `fa44c7f251568a8b`，14-16 位）。遇到 32 位大写 hex ID，优先按 distinct_id / $identity_login_id 查，不要当 device_id 查。
+
+### 34. `drone_sn` 字段只在 `auto_operation_task_start` 事件中存在，`operation_auto_work_start` 没有此字段
+**症状**: 用 `WHERE drone_sn = 'XXX'` 查 `operation_auto_work_start` 返回 0 行，但飞机明明作业过
+**原因**: `operation_auto_work_start` 事件结构中没有 `drone_sn` 字段，只有 `auto_task_id` 可做关联
+**修复**: 判断飞机是否真正起飞作业，必须两步走：
+```sql
+-- 第一步：从 auto_operation_task_start 拿 auto_task_id 列表
+SELECT auto_task_id FROM events
+WHERE event = 'auto_operation_task_start' AND drone_sn = 'XXX' AND date = 'YYYY-MM-DD';
+
+-- 第二步：用这些 task_id 查 operation_auto_work_start
+SELECT count(*) FROM events
+WHERE event = 'operation_auto_work_start' AND auto_task_id IN ('id1','id2',...);
+```
+详见 [references/drone-operation-analysis.md](references/drone-operation-analysis.md)。
+
+### 35. SELECT 列数过多 + NULL 字段 → 流式 NDJSON 解析列错位
+**症状**: 查 `auto_operation_task_start` 选 8+ 列（含 fail_stage, fail_text, drone_electricity 等可空字段），解析后字段值与列名错位。更严重的变体：查 `fail_reason, fail_text, count(*)` 时，`fail_reason` 为 NULL 的行导致该 key 从 NDJSON 行对象中被完全丢弃，解析后列名变成 `['user_count', 'error_count', 'fail_text']`（fail_reason 消失，其余列左移填位），`error_count` 拿到的是 fail_reason 的值（如 `'0x80411011'`），`fail_text` 拿到的是 count 值。
+**原因**: 神策 SQL 端点返回 NDJSON 流式 JSON，当某些列为 NULL 时该 key 不出现在行对象中，`json.loads()` 逐行解析时列错位
+**修复**:
+- **✅ 首选用 COALESCE 消除 NULL**：`SELECT COALESCE(fail_reason, '(空)') as fr, COALESCE(fail_text, '(空)') as ft, count(*) as ec FROM ... GROUP BY fr, ft` — COALESCE 后所有行都有非 NULL 值，NDJSON 列结构完整，不会错位
+- **优先查核心字段**（fail_stage, fail_text, auto_task_id），分批补充其他字段
+- **用 GROUP BY 聚合查询代替明细查询**（聚合后无 NULL 问题）
+- **限制 SELECT 列数 ≤ 5**，需要更多信息时单独再查
+- 确认明细数据时用 `stream_query(sql)` 函数而非手动 `json.loads()`
+
+### 36. fail_text 中的错误码需十六进制转十进制查 API，且部分码未注册
+**场景**: `fail_text` 含 `0x0F350000` 格式错误码，需要查含义
+**修复**:
+- 用 `int('0x0F350000', 16)` 转十进制（= 255131648），再查事件错误码 API
+- 植保系列 product_uuid = `5639054e-77a7-4e73-ab26-f7fd5153fc25`，航测系列 product_uuid = `14e920af-34e5-4fb3-904f-15425251a9d8`
+- ⚠️ 查不到 ≠ 不存在，可能是固件级新增码，App 端显示"未知错误"，需联系售后确认
+- 详见 event-error-sync skill 的 API 查询方法
+
+### 37. `$device_id` 在 SQL 中不能加双引号，否则 count(distinct) 恒为 1
+**症状**: `SELECT count(distinct "$device_id") as dc FROM events WHERE ...` 返回 `dc = 1.0`（无论数据量多大）
+**原因**: `"$device_id"` 被神策 SQL 引擎当作**字符串字面量**（值为 `"$device_id"` 这个文本），`count(distinct '字符串')` 当然恒为 1。正确写法是直接写 `$device_id`（不加引号），神策会将其解析为属性引用。
+**修复**:
+```sql
+-- ❌ count 恒为 1（$device_id 被当字符串字面量）
+SELECT count(distinct "$device_id") as dc FROM events WHERE event = 'user_login'
+-- ✅ 正确
+SELECT count(distinct $device_id) as dc FROM events WHERE event = 'user_login'
+```
+**注意**: 此问题也适用于 `count(distinct distinct_id)`，但 `distinct_id` 是普通列名（无 `$` 前缀），加不加引号都不影响。只有 `$` 前缀的系统属性（`$device_id`、`$app_version`、`$os` 等）在 `count(distinct ...)` 内部加引号才会出问题。在 WHERE 子句中 `"$device_id" = 'xxx'` 通常正常工作（被解析为属性引用），但 `count(distinct ...)` 内部的行为不同，安全起见一律不加引号。
+
+### 38. 多指标 + fail_text 混合查询需拆三次 SQL 再合并（避免 NDJSON 列错位）
+**场景**: 需要同时统计每个错误码（fail_reason）的：报错次数、涉及设备数、涉及用户数、提示文案（fail_text）。
+**坑点**: 一条 SQL 同时 SELECT `fail_reason, fail_text, count(*), count(distinct distinct_id), count(distinct $device_id)` 会因 NULL 列导致 NDJSON 列错位（见 Pitfall 35），即使加了 COALESCE，列数多 + GROUP BY 两个文本字段也容易触发 GRPC 错误。
+**修复**: 拆三次查询，Python 合并：
+```python
+# 查询1：报错次数 + 用户数
+q1 = """SELECT COALESCE(fail_reason, '(空)') as fr,
+        count(*) as ec, count(distinct distinct_id) as uc
+        FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+        GROUP BY fr LIMIT 2000"""
+
+# 查询2：设备数（$device_id 不加引号！）
+q2 = """SELECT COALESCE(fail_reason, '(空)') as fr,
+        count(distinct $device_id) as dc
+        FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+        GROUP BY fr"""
+
+# 查询3：提示文案（取每个 fail_reason 下频次最高的 fail_text）
+q3 = """SELECT COALESCE(fail_reason, '(空)') as fr,
+        COALESCE(fail_text, '(空)') as ft, count(*) as tc
+        FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+        GROUP BY fr, ft"""
+
+# 合并：q1+q2 按 fr join，q3 按 fr 取 tc 最大的 ft
+```
+**关键点**:
+- 三次查询都用 `COALESCE(fail_reason, '(空)')` 避免 NULL 丢列
+- `$device_id` 不加双引号（见 Pitfall 37）
+- fail_text 取每个错误码下 `count(*)` 最大的那条文案（多语言环境下同一错误码有多语种文案）
+- 逐事件查询，不要跨事件 UNION（容易触发 GRPC）
+
+### 39. `drone_model` 字段 GROUP BY 触发 GRPC，改用 `device_model`
+**症状**: `SELECT drone_model, count(*) FROM events WHERE event='auto_operation_task_start' GROUP BY drone_model` → "GRPC 服务发生未知异常"
+**真相**: `drone_model` 字段在元数据里存在（`has_data=True`），但 SQL 引擎 GROUP BY 时触发内部错误，可能是字段名冲突或数据类型问题。
+**修复**: 用 `device_model` 代替。`device_model` 存的是 UAV 编号（UAV40/UAV43/...），与 `drone_model` 内容一致，GROUP BY 完全正常。
+```sql
+-- ❌ GRPC
+SELECT drone_model, count(*) FROM events WHERE event='auto_operation_task_start' GROUP BY drone_model
+-- ✅ 正常
+SELECT device_model, count(*) FROM events WHERE event='auto_operation_task_start' GROUP BY device_model
+```
+**注意**: 部分记录 `device_model` 可能为空，分析时统一标注为"未识别"；空值比例按当前查询窗口现场计算。
+
+### 40. GROUP BY 高基数字段 LIMIT 10000 实际返回远少于 10000 行
+**症状**: `SELECT distinct_id, count(*) FROM events WHERE ... GROUP BY distinct_id LIMIT 10000` 只返回 98 行（预期 10000）
+**真相**: 神策 SQL 对高基数 GROUP BY 有内部截断机制，LIMIT 10000 并不保证返回 10000 行。实际返回行数取决于数据分布和内部查询计划。
+**修复**: 做用户集中度分析时，不要依赖 SQL 的 GROUP BY + LIMIT 拿全量分布。改用：① 先按天/周分段查询再合并；② 用 `count(distinct distinct_id)` 直接算总数，然后分桶查询（如 `WHERE task_cnt >= 100`）；③ 用 export_data.py 异步导出全量。
+
+### 41. `_auth.py` 的 `sql_query()` helper 返回 0 行时不报错，容易误判为"没数据"
+**症状**: 调 `sql_query(sql)` 返回 `([], [])`，以为查询结果为空，实际是 SQL 语法错误触发 GRPC 异常被静默吞掉
+**真相**: `_auth.py` 的 `sql_query()` 在 API 返回错误码时（如 `COMMON-R-131-1`）没有抛出异常，而是返回空结果。这导致调用方无法区分"真没数据"和"SQL 写错了"。
+**修复**: 调用 `sql_query()` 后先检查 `columns` 是否为空，如果为空且 `rows` 也为空，需要额外验证：用 `query_sql.py` 脚本跑同样的 SQL 看是否有报错输出。长期方案：给 `_auth.py` 加错误码检查，非 SUCCESS 时抛异常。
+```python
+# 临时验证方法
+cols, rows = sql_query(sql)
+if not cols and not rows:
+    print("⚠️ 查询返回空，可能是 SQL 错误，建议用 query_sql.py 验证")
+```
+
+### 42. `auto_operation_task_start` 的 `route_type` 枚举值含"标准往返航线"和"往返航线"两个独立值
+**症状**: 按 `route_type` GROUP BY 发现 `往返航线` 和 `标准往返航线` 是两个独立枚举，不是父子关系
+**真相**: 这是产品迭代产生的两个独立枚举值，业务含义需要跟产品确认。分析时建议：① 分开统计；② 如果确认是同一类，合并后重新计算占比。
+**经验**: 遇到枚举值分组结果异常多时，先拉 `DISTINCT route_type` 确认枚举全集，不要凭名字猜含义。
+
+### 43. `if_use_bound` 和 `if_only_bound` 组合定义扫边状态
+**字段含义**（auto_operation_task_start 事件）：
+- `if_use_bound` = 1 表示开启扫边，0 表示不扫边
+- `if_only_bound` = 1 表示全部扫边（仅执行扫边航线）；0 需结合 `if_use_bound` 判断
+**组合逻辑**：
+| if_use_bound | if_only_bound | 业务含义 |
+|---|---|---|
+| 0 | 0 | 不扫边 |
+| 1 | 0 | 部分扫边（主航线+扫边）|
+| 1 | 1 | 全部扫边（仅执行扫边航线）|
+| 0 | 1 | 异常组合，单独保留并核查数据定义 |
+**经验**: 布尔字段 GROUP BY 比 WHERE 过滤更稳定（见 Pitfall 12），多字段组合 GROUP BY 时列数控制在 4 列以内避免 GRPC。
+
+---
+
+**修复**: `$` 前缀字段**不加任何引号**直接使用：
+```sql
+-- ❌ 返回 1（字符串字面量）
+SELECT count(distinct "$device_id") as dev_cnt FROM events WHERE ...
+SELECT "$device_id" as dev_id FROM events LIMIT 5  -- 返回 '$device_id' 而非实际值
+
+-- ✅ 正确（不加引号）
+SELECT count(distinct $device_id) as dev_cnt FROM events WHERE ...
+SELECT $device_id as dev_id FROM events LIMIT 5
+```
+**影响范围**: 所有 `$` 前缀系统属性（`$device_id`, `$device_model`, `$app_version`, `$os`, `$screen_orientation` 等）。
+**注意**: `$identity_login_id` 在 WHERE 子句中也需要不加引号：`WHERE $identity_login_id = 'xxx'` 而非 `WHERE "$identity_login_id" = 'xxx'`。但 Pitfall 31 的配方中用了 `"$identity_login_id"` 加引号 — 那个写法在 WHERE OR 条件中碰巧能工作（因为 OR 两边都是字符串比较），但在 SELECT 和 count(distinct) 中会出错。**统一不加引号最安全**。
+
+### 44. 跨事件错误码聚合：拆分查询避免 NDJSON 列错位（2026-06-25）
+**场景**: 需要跨多个事件聚合 `fail_reason`（错误码），同时统计报错次数 + 用户数 + 设备数。
+**问题**: 单条 SQL 选 5 列（event, fail_reason, count(*), count(distinct distinct_id), count(distinct $device_id)）+ 10 个事件 IN 子句 → NDJSON 流式返回列错位，`fail_reason` 列丢失。
+**修复**: 拆成两条查询，客户端按 (event, fail_reason) 组合键 merge：
+```python
+# Query 1: event, fail_reason, count(*), count(distinct distinct_id)
+sql1 = "SELECT event, fail_reason, count(*) as error_count, count(distinct distinct_id) as user_count FROM events WHERE event IN (...) AND date >= '...' AND date <= '...' GROUP BY event, fail_reason LIMIT 500"
+
+# Query 2: event, fail_reason, count(distinct $device_id)
+sql2 = "SELECT event, fail_reason, count(distinct $device_id) as device_count FROM events WHERE event IN (...) AND date >= '...' AND date <= '...' GROUP BY event, fail_reason LIMIT 500"
+
+# Merge by (event, fail_reason) composite key
+data = {}
+for r in rows1:
+    key = (r['event'], str(r['fail_reason']))
+    data[key] = {...}
+for r in rows2:
+    key = (r['event'], str(r['fail_reason']))
+    if key in data: data[key]['device_count'] = int(r['device_count'])
+```
+**注意**: 结果中会有空字符串和 `"null"` 的 `fail_reason` 值（非真实错误码），客户端需过滤。
+详见 [references/error-code-analysis.md](references/error-code-analysis.md)。
+
+---
+
 ## 十、变更日志
+
+### 2026-07-28 v1.4.1（references 补充航线/扫边/机型字段说明）
+- ✅ `references/drone-operation-analysis.md` 补充 `route_type` / `if_use_bound` / `if_only_bound` / `device_model` 字段说明
+- ✅ 新增模式0：航线类型与扫边组合分析（日期参数化，区分不扫边/部分扫边/全部扫边）
+- ✅ 新增 Pitfall 9-11：route_type 双枚举、扫边组合逻辑、drone_model→device_model 替代方案
+
+### 2026-07-28 v1.4.0（自主作业分析踩坑合集）
+- ✅ 新增 Pitfall 39：`drone_model` GROUP BY 触发 GRPC，改用 `device_model`
+- ✅ 新增 Pitfall 40：GROUP BY 高基数字段 LIMIT 10000 实际返回远少于 10000 行（内部截断机制）
+- ✅ 新增 Pitfall 41：`_auth.py` 的 `sql_query()` helper 返回 0 行时不报错，容易误判为"没数据"
+- ✅ 新增 Pitfall 42：`route_type` 枚举含"往返航线"和"标准往返航线"两个独立值，需产品确认是否合并
+- ✅ 新增 Pitfall 43：`if_use_bound` + `if_only_bound` 组合定义扫边状态（不扫边/部分扫边/全部扫边）
+- ✅ 强化 Pitfall 26：SUBSTR/CEIL/算术表达式在 GROUP BY 中全触发 GRPC，只有 HOUR(time) 等极少数函数可用
+- ✅ 修复编号冲突：原 Pitfall 38（跨事件错误码聚合）改为 Pitfall 44
+- ✅ **修复 `_auth.py` 的 `sql_query()` NDJSON 解析 bug**：神策 SQL 端点返回 NDJSON 多行响应，每个 JSON 对象可携带不同的 `columns` 集合（首行常为缺失分组字段的 header 对象），原实现只用第一行的 columns 解析所有后续行，导致列错位 / 数据串列。修复后每个对象用自己的 columns 解析，列结构完整
+
+### 2026-06-25 v1.3.2（错误码分析 + SQL 双引号坑）
+- ✅ 新增 `references/error-code-analysis.md`：跨事件错误码聚合排行——哪些事件有 fail_reason、拆分查询+客户端 merge 技巧、错误码含义查询
+- ✅ 新增 Pitfall 37：`$` 前缀字段不能用双引号包裹（`"$device_id"` 被当字符串字面量，count(distinct) 恒返回 1）
+- ✅ 新增 Pitfall 38：跨事件错误码聚合拆分查询避免 NDJSON 列错位
+- ✅ SKILL.md 常用查询配方段增加 error-code-analysis.md 指引
+
+### 2026-06-25 v1.3.2（错误码分析模式补充）
+- ✅ 新增 Pitfall 37：`$device_id` 在 SQL `count(distinct ...)` 中不能加双引号，否则恒为 1
+- ✅ 新增 Pitfall 38：多指标+fail_text 混合查询需拆三次 SQL 再合并（避免 NDJSON 列错位）
+- ✅ 强化 Pitfall 35：补充 COALESCE 修复方案（原仅建议减少列数/改聚合）
+
+### 2026-06-24 v1.3.1（飞机维度分析补充）
+- ✅ drone-operation-analysis.md 字段表补充 `position_mode`/`communication_link`/`if_resume_operation`
+- ✅ 新增模式6：从飞机反查用户后查完整行为时间线（cross-reference workflow）
+- ✅ 新增 Pitfall 8（drone ref）：数据上报延迟说明（30s~5min）
+
+### 2026-06-24 v1.3.0（飞机维度分析扩展）
+- ✅ 新增 `references/drone-operation-analysis.md`：飞机序列号(drone_sn)维度查询全配方——作业概览/失败明细/历史趋势/auto_task_id关联判断起飞/错误码查询/从飞机反查用户
+- ✅ 新增 Pitfall 34：`drone_sn` 只在 `auto_operation_task_start` 中存在，`operation_auto_work_start` 无此字段
+- ✅ 新增 Pitfall 35：SELECT 列数过多+NULL字段导致 NDJSON 列错位
+- ✅ 新增 Pitfall 36：fail_text 错误码需 hex→decimal 转换查 API，部分码未注册
 
 ### 2026-06-03 v1.2.0（全端点覆盖版）
 - ✅ `_auth.py`: 77 个端点常量（官方 63 + Portal 5 + Tag/Segment/Export 9）
@@ -729,43 +1034,3 @@ detail = api_get(EP_DASH_DETAIL, params={"dashboard_id": "xxx"})
 
 ### 2026-06-02 v0.1.0（脚手架）
 - 初始框架搭建，卡在 Key 权限
-
-## 适用场景
-
-- 查询极飞农服 App 的用户行为数据（PV/UV/DAU/留存/漏斗等）
-- 用自定义 SQL 做灵活分析（版本分布、功能渗透率、设备型号分布等）
-- 管理事件/属性的元数据（可见性、字典、Schema 定义）
-- 导出标签/分群用户数据，或创建异步导出任务
-- 管理渠道追踪链接（CRUD）、查看 Dashboard 概览和智能预警
-
-## 前提条件
-
-- API Key（35 字符 #K-xxx）已存储在 `~/.hermes/credentials/sensors.txt`（chmod 600）
-- 网络可访问 `user-insight.xa.com:443`（仅 443 端口，其他端口不通）
-- 请求必须同时传 `api-key` 和 `sensorsdata-project: production` 两个 header
-- Python 3 + requests 库
-
-## 能力清单
-
-| 能力 | 说明 | 限制 |
-|------|------|------|
-| 事件分析（19 个模型） | 事件/漏斗/留存/分布/间隔/归因/LTV/Session/路径/属性分析 | 每个模型有特定必填参数 |
-| 自定义 SQL | 灵活查询事件表和用户表 | ≤3次/秒，并发≤10，不支持 HAVING |
-| Dashboard 概览 | 获取平台预计算的 DAU/新增/留存等标准指标 | 只读（部分写操作需权限） |
-| 业务集市 | 查询/刷新业务模型数据 | 7 个端点 |
-| 事件/属性元数据 | 列出事件、属性、候选值、用户分群 | Schema 端点用 POST 不是 GET |
-| 渠道追踪 | 完整 CRUD（增删改查渠道链接和活动） | 5 个端点 |
-| 标签/分群/导出 | 管理标签和分群定义，创建异步导出任务 | 导出为异步三步流程 |
-| 智能预警 | 查看预警列表和配置详情 | 只读 2 个端点 |
-
-## 预期效果
-
-- 事件分析 API 返回结构化的时间序列数据（按天/周/月分组）
-- SQL 查询返回 JSON 格式的结果集（多行为流式 JSON，脚本已内置解析器）
-- 元数据查询秒级返回事件列表、属性列表及候选值
-- 异步导出任务创建后返回 task_id，轮询直到 FINISH 后可拉取数据
-- API 数据与神策界面完全一致（已通过全面对比验证）
-
-## Changelog
-
-- **1.2.0** (2026-06-14): 初始版本，可移植性改造

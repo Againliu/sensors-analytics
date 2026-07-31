@@ -11,7 +11,7 @@
 |---|---|
 | 神策 UI（生产）| `https://user-insight.xa.com/` |
 | 神策 API（生产）| `https://user-insight.xa.com:443/api/v3/...` |
-| 神策 API（文档示例）| `http://{host}:8107/api/v3/...`（**本地部署**，极飞内网用域名）|
+| 神策 API（文档示例）| `http://{host}:8107/api/v3/...`（**本地部署**，XAG内网用域名）|
 | OpenAPI 概述 | `https://manual.sensorsdata.cn/sa/docs/about_open_api/v0300` |
 | OpenAPI 认证 | `https://manual.sensorsdata.cn/sa/docs/open_api_authentication/v0300` |
 | OpenAPI 手册（外站）| `https://manual.sensorsdata.cn/openapi` ← 完整端点列表在这 |
@@ -29,7 +29,7 @@
 ```
 
 - `api-key`：从 `~/.hermes/credentials/sensors.txt` 读，35 字符，`#K-` 前缀
-- `sensorsdata-project`：项目名，极飞常见是 `production` 或 `default`
+- `sensorsdata-project`：项目名，XAG常见是 `production` 或 `default`
 - 权限 = 创建 key 的用户权限（**不是** key 自己的 ACL）
 
 ---
@@ -40,7 +40,7 @@
 http(s)://{domain}{Base URL}{API URL}
 ```
 
-- `domain` = `user-insight.xa.com`（极飞部署）
+- `domain` = `user-insight.xa.com`（XAG部署）
 - `Base URL` 选项：
   - `/api/v3/portal/v2` — 主门户（事件/属性/查询/管理）
   - `/api/v3/analytics/v1` — 分析模块（project/list 等）
@@ -116,7 +116,7 @@ curl -sk https://user-insight.xa.com:443/ | grep -oP 'license\{[^}]+\}' | head -
 ```
 
 **关键字段**：
-- `customer_id`：客户名（极飞=`jifeikeji`）
+- `customer_id`：客户名（XAG=`jifeikeji`）
 - `max_project_num` / `project_num`：项目配额/已用
 - `expire_time`：到期时间
 - `max_message_num` / `message_num`：事件数配额

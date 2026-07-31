@@ -208,3 +208,114 @@ SELECT
     ELSE '其他/空'
   END as mode_group, ...
 ```
+
+---
+
+## 11. 查单个用户最近有没有登录/启动 App（给定 32 位 HEX ID）
+
+**典型场景**: 业务/客服/产品丢一个 32 位大写 HEX（如 `D74B8CE70961B4ADDAC9635079442350`）问"这个用户最近几天有没有登录或启动 App？"
+
+```sql
+-- Step 1：宽窗口（180天）查活跃情况，同时匹配 distinct_id 和 $identity_login_id
+SELECT max(date) AS last_date,
+       min(date) AS first_date,
+       count(*)   AS total_events,
+       count(distinct date) AS active_days
+FROM events
+WHERE (distinct_id = '{ID}' OR "$identity_login_id" = '{ID}')
+  AND date >= date_sub(current_date(), 180);
+
+-- Step 2：拉最后活跃附近的明细（启动/登录事件）
+SELECT date, time, event, $app_version, $os, $model, $province, $city
+FROM events
+WHERE (distinct_id = '{ID}' OR "$identity_login_id" = '{ID}')
+  AND date >= '{last_date}'
+ORDER BY time DESC
+LIMIT 100;
+```
+
+**回复口径**:
+- 近 N 天有活跃 → 列出最后启动/登录时间、版本、设备、地区；
+- **近 7 天 0 结果 ≠ 用户不存在**，先用 180 天宽窗口确认历史上是否存在；
+- 历史有数据但最近 30+ 天无活跃 → 明确说"最后活跃 YYYY-MM-DD，距今 N 天，最近几天无登录/启动记录"，不要误判为"没有这个用户"。
+
+**ID 字段识别**（本项目 production）：
+| 字段 | 格式 | 用途 |
+|---|---|---|
+| `distinct_id` | 32 位大写 HEX（如 `32D7D85CC3C1D65E9C6602724FF9997E`） | 神策主标识，匿名阶段=设备ID，登录后切到 login_id |
+| `$identity_login_id` | 32 位大写 HEX | 登录后 ID，登录用户与 distinct_id 相同 |
+| `$device_id` / `$identity_anonymous_id` | 短小写（如 `fa44c7f251568a8b`，14-16 位） | 匿名设备短 ID，不是 32 位大写 |
+| `user_id` | 业务长整型（负数如 `-7.3e+18`） | 业务后端 user_id，不适合直接给用户查 |
+
+⚠️ **不要在 users 表用多个 OR 条件**（`id='X' OR user_id='X' OR $device_id='X'`），会触发 `COMMON-R-131-1 GRPC 服务发生未知异常`。查"是否存在 + 最近行为"一律走 events 表。
+
+---
+
+## 12. 跨事件错误码排行（报错次数 / 设备数 / 用户数 / 提示文案）
+
+**典型场景**: 产品/运营要"各埋点事件里排行前 N 的错误码，以及报错次数、涉及设备数、涉及用户数"。
+
+**含 `fail_reason` 字段的 10 个事件**（2026-06 实测）：
+| 事件 | 说明 |
+|------|------|
+| `device_add_check` | 添加设备-获取设备信息 |
+| `device_add_confirm` | 添加设备-确定添加设备 |
+| `device_firmware_update` | 固件更新操作 |
+| `user_login` | 用户登录 |
+| `user_register` | 用户注册 |
+| `user_sms_send` | 发送短信验证码 |
+| `survey_save_feilds` | 测地-测地流程操作 |
+| `survey_use_mapping_device` | 测地/地块管理-选择/切换测绘设备（fail_reason 通常为空） |
+| `operation_lift_mode` | 运输作业-执行自动飞行（错误码为十进制数字，非 hex 格式） |
+| `auto_operation_task_start` | 自主作业任务启动 |
+
+### 全局 Top 20（跨所有事件）
+
+```sql
+SELECT event, COALESCE(fail_reason, '(空)') as fr, count(*) as ec, count(distinct distinct_id) as uc
+FROM events
+WHERE event IN ('device_add_check','device_add_confirm','device_firmware_update',
+  'user_login','user_register','user_sms_send','survey_save_feilds',
+  'survey_use_mapping_device','operation_lift_mode','auto_operation_task_start')
+  AND date >= 'FROM' AND date <= 'TO'
+GROUP BY event, fr
+ORDER BY ec DESC
+LIMIT 1000
+```
+
+然后 Python 里取全局 Top 20。device_count 需单独查（`$device_id` 不加引号，见 Pitfall 37）。
+
+### 按事件分组 Top 20（三查询合并模式）
+
+每个事件执行三条 SQL，Python 合并取 Top 20（详见 Pitfall 38）：
+
+```python
+# 查询1：报错次数 + 用户数
+q1 = f"""SELECT COALESCE(fail_reason, '(空)') as fr,
+         count(*) as ec, count(distinct distinct_id) as uc
+         FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+         GROUP BY fr LIMIT 2000"""
+
+# 查询2：设备数
+q2 = f"""SELECT COALESCE(fail_reason, '(空)') as fr,
+         count(distinct $device_id) as dc
+         FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+         GROUP BY fr"""
+
+# 查询3：提示文案（取每个 fr 下 count 最大的 fail_text）
+q3 = f"""SELECT COALESCE(fail_reason, '(空)') as fr,
+         COALESCE(fail_text, '(空)') as ft, count(*) as tc
+         FROM events WHERE event = '{ev}' AND date >= '{from}' AND date <= '{to}'
+         GROUP BY fr, ft"""
+```
+
+**合并逻辑**：
+1. q1 结果按 `ec` 降序取前 20 行 → 主表
+2. q2 按 `fr` join 到主表 → 补 `dc`（设备数）
+3. q3 按 `fr` 分组，取 `tc` 最大的 `ft` → 补文案列
+
+**注意事项**：
+- `(空)` 表示 `fail_reason` 为 NULL 的记录（可能是成功操作未上报错误码，也可能是上报缺失），占比可能很高（如 `auto_operation_task_start` 的 `(空)` 占 95%+）
+- `fail_text` 是多语言文案（中/英/土/韩/越南/葡萄牙语等），取频次最高的一条即可代表
+- `operation_lift_mode` 的错误码是十进制数字（如 `1326198`），不是 hex 格式，需单独 `hex()` 转换后查 API
+- `0` 和 `1` 在多个事件中出现量很大，含义可能是成功/占位码，需业务确认

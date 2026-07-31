@@ -213,21 +213,112 @@ def api_get(endpoint: str, params: dict = None, project: str = DEFAULT_PROJECT,
     return parse_response(r)
 
 
-def parse_response(r: requests.Response) -> dict:
-    """解析响应: 成功返回 data dict，失败抛带详情的异常"""
+def parse_response(r: requests.Response, expect_stream: bool = False) -> dict | list:
+    """解析响应。
+    
+    普通模式(expect_stream=False): 返回单个 dict（首个 JSON 对象）。
+    流式模式(expect_stream=True): 返回 list[dict]，合并所有行的 data 行。
+    
+    神策 SQL 端点当结果有多行时，会返回 NDJSON（每行一个 JSON 对象，content-type 仍
+    是 application/json），此时 r.json() 会抛 JSONDecodeError('Extra data')，
+    必须用 raw_decode 逐个解析。
+    """
     if r.status_code != 200:
         raise Exception(f"HTTP {r.status_code}: {r.text[:300]}")
+    text = r.text
+    # 先尝试单对象
     try:
-        body = r.json()
-    except Exception:
-        raise Exception(f"JSON 解析失败: {r.text[:300]}")
-    # 神策响应有两种成功标志: code=SUCCESS 或直接有 data
-    if body.get("error") or body.get("error_type"):
-        raise Exception(f"API 错误: {body.get('error_type','')} - {body.get('error','')}")
-    if body.get("code") and body["code"] not in ("SUCCESS", ""):
-        msg = body.get("message", body.get("error_info", {}).get("error_causes", []))
-        raise Exception(f"API code={body['code']}: {msg}")
+        body = json.loads(text)
+        if expect_stream:
+            # 单对象也包成 list
+            return [body]
+        return body
+    except json.JSONDecodeError:
+        pass
+    # NDJSON 流式解析
+    objs = []
+    decoder = json.JSONDecoder()
+    i = 0
+    while i < len(text):
+        while i < len(text) and text[i].isspace():
+            i += 1
+        if i >= len(text):
+            break
+        try:
+            obj, idx = decoder.raw_decode(text, i)
+            objs.append(obj)
+            i = idx
+        except json.JSONDecodeError:
+            i += 1
+    if not objs:
+        raise Exception(f"JSON 解析失败（0 个对象）: {text[:300]}")
+    if not expect_stream:
+        # 单对象模式返回第一个 + 校验
+        body = objs[0]
+    else:
+        body = objs
+    if isinstance(body, dict):
+        if body.get("error") or body.get("error_type"):
+            raise Exception(f"API 错误: {body.get('error_type','')} - {body.get('error','')}")
+        if body.get("code") and body["code"] not in ("SUCCESS", ""):
+            msg = body.get("message", body.get("error_info", {}).get("error_causes", []))
+            raise Exception(f"API code={body['code']}: {msg}")
     return body
+
+
+def sql_query(sql: str, limit: int = 1000, project: str = DEFAULT_PROJECT,
+              timeout: int = 60) -> tuple[list, list[dict]]:
+    """执行 SQL 查询并返回 (columns, rows)，自动处理 NDJSON 流式响应。
+    
+    返回:
+      columns: 列名列表，如 ['date', 'event', 'cnt']
+      rows:    dict 列表，每个 dict 的 key 是 column 名。
+               注意: 神策返回的数值是 float（count(*) → float），需自行转 int。
+    
+    用法:
+      cols, rows = sql_query(\"SELECT event, count(*) as cnt FROM events ...\")
+      for r in rows:
+          print(r['event'], int(r['cnt']))
+    """
+    url = join_url(BASE_URL, EP_SQL_QUERY)
+    r = requests.post(url, json={"sql": sql, "limit": limit},
+                      headers=get_headers(project), timeout=timeout)
+    objs = parse_response(r, expect_stream=True)
+    if not isinstance(objs, list):
+        objs = [objs]
+    all_rows = []
+    columns = None
+    for obj in objs:
+        if not isinstance(obj, dict):
+            continue
+        if obj.get("code") and obj["code"] != "SUCCESS":
+            msg = obj.get("message", "")
+            raise Exception(f"SQL API code={obj['code']}: {msg}")
+        d = obj.get("data", {})
+        obj_columns = d.get("columns", [])
+        if columns is None:
+            columns = obj_columns
+        data = d.get("data", [])
+        if isinstance(data, list) and obj_columns:
+            n = len(obj_columns)
+            # 处理两种 data 格式:
+            # 1. data = [v1, v2, v3, v1, v2, v3, ...] (扁平值列表)
+            # 2. data = [[v1, v2, v3], [v1, v2, v3], ...] (嵌套行列表)
+            if len(data) > 0 and isinstance(data[0], list):
+                # 嵌套行列表
+                for row in data:
+                    if isinstance(row, list) and len(row) == n:
+                        all_rows.append(dict(zip(obj_columns, row)))
+            else:
+                # 扁平值列表
+                for j in range(0, len(data), n):
+                    chunk = data[j:j+n]
+                    if len(chunk) == n:
+                        all_rows.append(dict(zip(obj_columns, chunk)))
+        # 如果后续对象的 columns 不同，更新（第一行可能是 header 对象）
+        if obj_columns and columns != obj_columns:
+            columns = obj_columns
+    return columns or [], all_rows
 
 
 def async_task_wait(task_id: str, project: str = DEFAULT_PROJECT,
